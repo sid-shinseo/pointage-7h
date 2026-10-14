@@ -24,6 +24,7 @@ Le contexte produit complet est dans `PRODUCT.md`.
 | `vercel.json` | Build `node build.mjs`, sortie `dist/`, en-têtes `noindex` et anti-iframe. |
 | `supabase/schema.sql` | Table `pointage_docs` (un document JSON par utilisateur et par nom) avec RLS : chacun ne voit que ses lignes. Active aussi le temps réel. |
 | `design/` | Maquettes et anciennes versions (voir l'historique plus bas). Ne sont pas déployées. |
+| `scripts/weekly-email.mjs` et `.github/workflows/weekly-email.yml` | Rappel du vendredi : lit `PLAN_COURS` et `PLAN_EXAMS` dans `index.src.html`, et envoie un e-mail HTML (thème Mélange doux, tableaux et styles en ligne) par le SMTP de Gmail quand la semaine suivante sort de l'habitude jeudi-vendredi. Secrets : `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `MAIL_TO` (facultatif) ; variable `APP_URL`. |
 | `docs/planning-tp-ais.pdf` | Planning prévisionnel du centre de formation, source des jours de cours codés dans l'appli. |
 | `.agents/skills/impeccable` (lien dans `.claude/skills/`) | Skill de design « impeccable » (pbakaus/impeccable), installé avec `npx skills add`. |
 
@@ -96,8 +97,9 @@ Artefacts Claude :
 - Déploiement : créer le projet Supabase, lancer `supabase/schema.sql`, importer le dépôt dans
   Vercel avec `SUPABASE_URL` et `SUPABASE_ANON_KEY`, créer le compte, puis désactiver les
   inscriptions. Les étapes sont dans le README.
-- Question laissée sans réponse : un rappel par e-mail chaque vendredi quand les cours de la
-  semaine suivante changent.
+- Rappel e-mail du vendredi : le code est en place. Il reste à créer le mot de passe d'application
+  Gmail et les secrets GitHub (voir le README). Si tu modifies le format de `PLAN_COURS` ou
+  `PLAN_EXAMS`, garde-le en JSON valide : le script le lit directement.
 - Idées proposées : installation sur le téléphone (PWA), notifications de départ, export mensuel
   pour l'entreprise, demi-journées, statistiques.
 

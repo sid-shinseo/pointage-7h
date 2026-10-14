@@ -1,0 +1,31 @@
+name: Weekly training-days email
+
+on:
+  schedule:
+    # Fridays at 15:00 UTC (17:00 in summer, 16:00 in winter, Paris time)
+    - cron: "0 15 * * 5"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Send even if next week's training days are the usual ones"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  email:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/weekly-email.mjs ${{ (github.event_name == 'workflow_dispatch' && inputs.force) && '--force' || '' }}
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          APP_URL: ${{ vars.APP_URL }}

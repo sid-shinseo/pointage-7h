@@ -40,3 +40,24 @@ Sans être connecté avec ton compte, on ne peut lire aucune heure.
 SUPABASE_URL=... SUPABASE_ANON_KEY=... node build.mjs
 npx serve dist
 ```
+
+## Rappel par e-mail le vendredi (gratuit)
+
+Chaque vendredi vers 17h (16h en hiver), GitHub Actions (`.github/workflows/weekly-email.yml`)
+regarde la semaine suivante dans le planning. Si tes cours ne tombent pas le jeudi et le vendredi
+(cours le lundi et le mardi, un seul jour à cause d'un férié, examens, semaine sans cours), il
+t'envoie un e-mail aux couleurs de l'appli depuis ton Gmail. Sinon, il n'envoie rien.
+
+Mise en place, une seule fois :
+
+1. Active la validation en deux étapes sur ton compte Google, si ce n'est pas déjà fait.
+2. Crée un **mot de passe d'application** sur https://myaccount.google.com/apppasswords
+   (nom : « Pointage 7h »). Copie les 16 lettres.
+3. Dans GitHub, ouvre `pointage-7h` > **Settings > Secrets and variables > Actions**.
+   - Onglet **Secrets**, ajoute `GMAIL_USER` (ton adresse Gmail) et `GMAIL_APP_PASSWORD` (les 16 lettres).
+     Tu peux aussi ajouter `MAIL_TO` pour recevoir le mail sur une autre adresse.
+   - Onglet **Variables** (facultatif) : `APP_URL` = l'adresse Vercel du site. Le mail affichera alors un bouton « Ouvrir Pointage 7h ».
+4. Pour tester : onglet **Actions** > « Weekly training-days email » > **Run workflow**.
+   Ce lancement manuel envoie le mail même si la semaine est normale.
+
+Aperçu sans rien envoyer : `npm install` puis `node scripts/weekly-email.mjs --date 2026-10-16 --preview email-preview.html`.

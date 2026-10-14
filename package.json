@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "email:preview": "node scripts/weekly-email.mjs --preview email-preview.html"
+  },
+  "dependencies": {
+    "nodemailer": "10.0.13"
   }
 }
