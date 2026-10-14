@@ -62,8 +62,9 @@ Format : `settings` contient les réglages, `m-AAAA-MM` contient `{ days: { "AAA
   tapant `w` puis `c` hors d'un champ, ou en touchant 5 fois le logo « Pointage 7h ». Il propose un
   chrono « J'y vais » / « Je reviens », des ajouts rapides et des statistiques (année, mois, jour,
   passages, moyenne). Ses données sont dans un document à part (`wc` : `{ entries: [{ t, m }], running, since }`),
-  synchronisé comme le reste. Il ne doit **jamais** être remis à zéro, ni par le changement de
-  mois ni par l'ajustement. Aucun lien visible ne doit y mener.
+  synchronisé comme le reste. Il couvre l'année d'alternance, du 1er octobre 2026 au 30 septembre
+  2027 (`ALT_FROM` et `ALT_TO`), et affiche un « bilan final » une fois la période terminée. Il ne doit
+  **jamais** être remis à zéro, ni par le changement de mois ni par l'ajustement. Aucun lien visible ne doit y mener.
 - **Départ réel** : l'utilisateur part souvent sans pointer. Le lendemain, un bandeau lui demande
   l'heure de départ, préremplie avec l'heure prévue.
 
