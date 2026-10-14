@@ -289,6 +289,24 @@ textarea { width: 100%; min-height: 100px; border: 0; background: var(--sunk); b
   .dmain { grid-column: 1; grid-row: 2; }
   .dside { grid-column: 2; grid-row: 2; }
 }
+/* ---------- Le trône (panneau caché) ---------- */
+.wc { border: 0; padding: 0; background: transparent; color: var(--ink); width: min(460px, calc(100vw - 24px)); max-height: calc(100vh - 32px); }
+.wc:focus, .wc:focus-visible { outline: none; }
+.wc::backdrop { background: rgba(10, 14, 12, 0.45); }
+.wc .box { background: var(--paper); border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.wc .head { display: flex; align-items: center; gap: 12px; }
+.wc .head svg { width: 34px; height: 34px; color: var(--accent); flex: 0 0 34px; }
+.wc .head h2 { font-size: 1.2rem; flex: 1; }
+.wc .total { font-family: var(--f-display); font-weight: 800; font-size: clamp(3.2rem, 15vw, 4.4rem); line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.wc .chrono { background: var(--accent-soft); border-radius: 20px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wc .chrono .num { font-weight: 600; font-size: 1.5rem; color: var(--accent); }
+.wc .quick { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.wc .quick input { width: 90px; }
+.wc .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.wc .log { display: flex; flex-direction: column; gap: 2px; }
+.wc .log div { display: flex; justify-content: space-between; align-items: center; font-size: 0.86rem; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.wc .log button { border: 0; background: transparent; color: var(--muted); font-size: 0.8rem; padding: 4px 8px; border-radius: 8px; }
+@media (max-width: 480px) { .wc .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) {
   .carousel { scroll-behavior: auto; } .ribbon.reveal .seg { animation: none; }
   .btn:active, .round:active, .tab:active, .drow:active, .monthpill:active, .mini-row:active { transform: none; }
@@ -397,6 +415,8 @@ textarea { width: 100%; min-height: 100px; border: 0; background: var(--sunk); b
     </main>
   </div>
 
+  <dialog class="wc" id="wc" aria-labelledby="wcTitle"><div class="box" id="wcBox"></div></dialog>
+
   <nav class="tabbar" aria-label="Navigation">
     <div class="in">
       <div class="brand rail-brand"><i></i>Pointage 7h</div>
@@ -467,13 +487,13 @@ const DEFAULT_SETTINGS = {
   ferieChome: { jan1: true, paques: true, mai1: true, mai8: true, ascension: true, pentecote: false, jul14: true, aou15: true, nov1: true, nov11: true, dec25: true, vsaint: true, dec26: true }
 };
 const LS_DATA = "pointage7h.v1", LS_TAB = "pointage7h.tab";
-const state = { settings: structuredClone(DEFAULT_SETTINGS), months: {} };
+const state = { settings: structuredClone(DEFAULT_SETTINGS), months: {}, wc: { entries: [], running: null } };
 const S = () => state.settings;
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
 function loadLocal() {
-  try { const p = JSON.parse(lsGet(LS_DATA) || "null"); if (p) { state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...(p.settings || {}) }; state.months = p.months || {}; } } catch (e) {}
+  try { const p = JSON.parse(lsGet(LS_DATA) || "null"); if (p) { state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...(p.settings || {}) }; state.months = p.months || {}; if (p.wc) state.wc = p.wc; } } catch (e) {}
 }
 const saveLocal = () => lsSet(LS_DATA, JSON.stringify(state));
 const monthObj = ym => (state.months[ym] ||= { days: {}, adj: 0 });
@@ -628,10 +648,13 @@ function persist(name, getData) {
 }
 const persistMonth = ym => persist("m-" + ym, () => monthObj(ym));
 const persistSettings = () => persist("settings", () => state.settings);
+const persistWc = () => persist("wc", () => state.wc);
+const wcHasData = () => state.wc.entries.length > 0 || state.wc.running != null;
 function applyDoc(name, data) {
   if (inflight[name]) return;
   if (name === "settings") { state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...structuredClone(data) }; fillSettings(); }
   else if (name.startsWith("m-")) state.months[name.slice(2)] = structuredClone(data);
+  else if (name === "wc") { state.wc = { entries: [], running: null, ...structuredClone(data) }; renderWc(); }
   saveLocal(); render();
 }
 function setSync(on, text) { const el = $("sync"); el.classList.toggle("on", on); el.querySelector("span").textContent = text; }
@@ -652,11 +675,13 @@ async function connectClaude() {
       col.doc(name).onSnapshot(snap => {
         if (snap.metadata?.hasPendingWrites) return;
         if (snap.exists) applyDoc(name, snap.data());
+        else if (name === "wc") { if (wcHasData()) persistWc(); }
         else if (name === "settings" ? lsGet(LS_DATA) : Object.keys(state.months[name.slice(2)]?.days || {}).length) persist(name, () => name === "settings" ? state.settings : monthObj(name.slice(2)));
       }, () => {});
     };
     backend.watchMonth = ym => watch("m-" + ym);
     watch("settings");
+    watch("wc");
     new Set([ymOf(todayKey), viewYM, ...Object.keys(state.months)]).forEach(ym => watch("m-" + ym));
   } catch (e) {}
 }
@@ -697,6 +722,7 @@ async function pullSupabase() {
   data.forEach(r => applyDoc(r.name, r.data));
   // Premier envoi des données déjà présentes sur l'appareil
   if (!remote.has("settings") && lsGet(LS_DATA)) persistSettings();
+  if (!remote.has("wc") && wcHasData()) persistWc();
   Object.keys(state.months).forEach(ym => { if (!remote.has("m-" + ym) && Object.keys(state.months[ym].days || {}).length) persistMonth(ym); });
   setSync(true, backend.label);
 }
@@ -1126,7 +1152,7 @@ function bindSettings() {
   $("sCours").addEventListener("change", () => { S().coursDays = [...$("sCours").querySelectorAll("input:checked")].map(x => +x.dataset.w); persistSettings(); render(); });
   $("sFeries").addEventListener("change", e => { const id = e.target.dataset.h; if (!id) return; S().ferieChome = { ...S().ferieChome, [id]: e.target.checked, mai1: true }; persistSettings(); render(); });
   $("ioExport").addEventListener("click", async () => {
-    const txt = JSON.stringify({ app: "pointage7h", v: 1, settings: state.settings, months: state.months });
+    const txt = JSON.stringify({ app: "pointage7h", v: 1, settings: state.settings, months: state.months, wc: state.wc });
     $("ioText").value = txt;
     try { await navigator.clipboard.writeText(txt); $("ioMsg").textContent = "Copié."; } catch (e) { $("ioText").select(); $("ioMsg").textContent = "Texte sélectionné, copie-le avec Ctrl+C."; }
   });
@@ -1137,9 +1163,99 @@ function bindSettings() {
     $("ioYes").addEventListener("click", () => {
       state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...(p.settings || {}) }; persistSettings();
       for (const [ym, m] of Object.entries(p.months || {})) { state.months[ym] = m; persistMonth(ym); backend?.watchMonth?.(ym); }
+      if (p.wc) { state.wc = p.wc; persistWc(); }
       fillSettings(); render(); $("ioMsg").textContent = "Données importées.";
     });
   });
+}
+
+/* ---- Le trône : compteur caché du temps aux toilettes, jamais remis à zéro ----
+   Ouverture : taper « w » puis « c » hors d'un champ, ou toucher 5 fois le logo. */
+const WC_ICON = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="11" height="9" rx="2"/><path d="M4 15h22a0 0 0 0 1 0 0c0 5-4.5 9-10 9h-2c-5.5 0-10-4-10-9z"/><path d="M11 24l-1.5 5h11L19 24"/></svg>`;
+const wcDur = m => { m = Math.round(m); return m < 60 ? `${m} min` : `${Math.floor(m / 60)}h${pad(m % 60)}`; };
+let wcTimer = null;
+function wcAdd(minutes) {
+  const m = Math.round(minutes);
+  if (!(m > 0) || m > 600) return;
+  state.wc.entries.push({ t: Date.now(), m });
+  if (!state.wc.since) state.wc.since = todayKey;
+  persistWc(); renderWc();
+}
+function renderWc() {
+  const dlg = $("wc");
+  if (!dlg || !dlg.open) return;
+  const w = state.wc, now = new Date(), y = now.getFullYear(), mo = now.getMonth();
+  const sum = list => list.reduce((a, e) => a + e.m, 0);
+  const all = sum(w.entries);
+  const inYear = w.entries.filter(e => new Date(e.t).getFullYear() === y);
+  const inMonth = inYear.filter(e => new Date(e.t).getMonth() === mo);
+  const inDay = inMonth.filter(e => keyOf(new Date(e.t)) === todayKey);
+  const avg = w.entries.length ? all / w.entries.length : 0;
+  const days7 = all / S().target;
+  const since = w.since || (w.entries[0] ? keyOf(new Date(w.entries[0].t)) : todayKey);
+  const run = w.running != null ? Math.max(0, Date.now() - w.running) : null;
+  const runTxt = run != null ? `${Math.floor(run / 60000)} min ${pad(Math.floor(run / 1000) % 60)} s` : "";
+  const fun = !all ? "Aucun passage enregistré pour l'instant. Le trône t'attend."
+    : days7 >= 1 ? `Soit ${days7.toFixed(1).replace(".", ",")} journée${days7 >= 2 ? "s" : ""} de 7h passée${days7 >= 2 ? "s" : ""} au calme.`
+    : `Soit ${Math.round(days7 * 100)} % d'une journée de 7h passée au calme.`;
+  $("wcBox").innerHTML = `
+    <div class="head">${WC_ICON}<h2 id="wcTitle">Le trône</h2><button class="round" style="background:var(--sunk)" data-wc="close" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div><div class="total">${wcDur(all)}</div><div class="muted" style="margin-top:6px">au total depuis le ${longDate(since).toLowerCase()}. Ce compteur ne revient jamais à zéro.</div></div>
+    <div class="chrono">${run != null
+      ? `<span><span class="eyebrow">Chrono en cours</span><br><span class="num" id="wcRun">${runTxt}</span></span><button class="btn cta" style="width:auto" data-wc="stop">Je reviens</button>`
+      : `<span>Lance le chrono en partant,<br>arrête-le en revenant.</span><button class="btn cta" style="width:auto" data-wc="start">J'y vais</button>`}</div>
+    <div class="quick"><span class="eyebrow">Ajouter</span><button class="btn sm" data-wc-add="2">+2 min</button><button class="btn sm" data-wc-add="5">+5 min</button><button class="btn sm" data-wc-add="10">+10 min</button>
+      <input type="text" id="wcMin" inputmode="numeric" placeholder="min" aria-label="Minutes à ajouter"><button class="btn sm" data-wc="custom">Ajouter</button></div>
+    <div class="stats">
+      <div class="stat"><b>${wcDur(sum(inYear))}</b><span>en ${y}</span></div>
+      <div class="stat"><b>${wcDur(sum(inMonth))}</b><span>ce mois-ci</span></div>
+      <div class="stat"><b>${wcDur(sum(inDay))}</b><span>aujourd'hui</span></div>
+      <div class="stat"><b>${w.entries.length}</b><span>passage${w.entries.length > 1 ? "s" : ""}</span></div>
+      <div class="stat"><b>${w.entries.length ? wcDur(avg) : "—"}</b><span>par passage</span></div>
+      <div class="stat"><b>${inYear.length}</b><span>passages en ${y}</span></div>
+    </div>
+    <div class="note">${fun}</div>
+    ${w.entries.length ? `<div class="log"><span class="eyebrow">Derniers passages</span>${w.entries.slice(-5).reverse().map(e => { const d = new Date(e.t); return `<div><span>${DAY3[d.getDay()]} ${d.getDate()} ${MON3[d.getMonth()]}, ${clock(d.getHours() * 60 + d.getMinutes())}</span><span><b class="num" style="font-size:.9rem">${wcDur(e.m)}</b><button data-wc-del="${e.t}" aria-label="Supprimer ce passage">Supprimer</button></span></div>`; }).join("")}</div>` : ""}
+    <div class="note">Raccourci secret : tape w puis c. Sur téléphone, touche 5 fois le logo.</div>`;
+}
+function openWc() {
+  const dlg = $("wc");
+  if (!dlg || dlg.open) return;
+  try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
+  renderWc();
+  clearInterval(wcTimer);
+  wcTimer = setInterval(() => { if (!dlg.open) return clearInterval(wcTimer); if (state.wc.running != null) { const el = $("wcRun"); if (el) { const r = Date.now() - state.wc.running; el.textContent = `${Math.floor(r / 60000)} min ${pad(Math.floor(r / 1000) % 60)} s`; } } }, 1000);
+}
+function bindWc() {
+  const dlg = $("wc");
+  let buf = "", last = 0;
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
+    const k = (e.key || "").toLowerCase();
+    if (k.length !== 1) return;
+    const t = Date.now();
+    buf = (t - last < 900 ? buf : "") + k; last = t;
+    if (buf.endsWith("wc")) { buf = ""; openWc(); }
+  });
+  let taps = [];
+  document.querySelectorAll(".brand").forEach(b => b.addEventListener("click", () => {
+    const t = Date.now(); taps = taps.filter(x => t - x < 2500); taps.push(t);
+    if (taps.length >= 5) { taps = []; openWc(); }
+  }));
+  dlg.addEventListener("click", e => {
+    if (e.target === dlg) return dlg.close();
+    const a = e.target.closest("[data-wc], [data-wc-add], [data-wc-del]");
+    if (!a) return;
+    if (a.dataset.wcAdd) return wcAdd(+a.dataset.wcAdd);
+    if (a.dataset.wcDel) { state.wc.entries = state.wc.entries.filter(x => String(x.t) !== a.dataset.wcDel); persistWc(); return renderWc(); }
+    const act = a.dataset.wc;
+    if (act === "close") dlg.close();
+    if (act === "start") { state.wc.running = Date.now(); persistWc(); renderWc(); }
+    if (act === "stop") { const m = Math.max(1, Math.round((Date.now() - state.wc.running) / 60000)); state.wc.running = null; wcAdd(m); }
+    if (act === "custom") { const v = parseInt($("wcMin").value, 10); if (v > 0) wcAdd(v); }
+  });
+  dlg.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "wcMin") { const v = parseInt(e.target.value, 10); if (v > 0) wcAdd(v); } });
 }
 
 /* ---- Onglets et rendu global ---- */
@@ -1174,7 +1290,7 @@ function maybeNotify(force) {
 function boot() {
   document.documentElement.lang = "fr";
   document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { if (b.dataset.tab === "day" && tab === "day") selKey = todayKey; setTab(b.dataset.tab); }));
-  bindWeeks(); bindMonth(); bindSettings(); bindLogin();
+  bindWeeks(); bindMonth(); bindSettings(); bindLogin(); bindWc();
   setInterval(() => render(false), 20000);
   setTimeout(maybeNotify, 1500);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) render(false); });

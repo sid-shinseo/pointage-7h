@@ -58,6 +58,12 @@ Format : `settings` contient les réglages, `m-AAAA-MM` contient `{ days: { "AAA
 - **Solde** : remis à 0 chaque mois, avec un champ « Ajustement du mois ». Un jour travaillé sans
   départ réel, ou un jour passé vide, ne compte pas.
 - **Prévisions** : départ pour faire 7h, et départ pour remettre le mois à 0, jamais avant 15h45.
+- **Le trône (fonction cachée, pour rire)** : compteur du temps passé aux toilettes. On l'ouvre en
+  tapant `w` puis `c` hors d'un champ, ou en touchant 5 fois le logo « Pointage 7h ». Il propose un
+  chrono « J'y vais » / « Je reviens », des ajouts rapides et des statistiques (année, mois, jour,
+  passages, moyenne). Ses données sont dans un document à part (`wc` : `{ entries: [{ t, m }], running, since }`),
+  synchronisé comme le reste. Il ne doit **jamais** être remis à zéro, ni par le changement de
+  mois ni par l'ajustement. Aucun lien visible ne doit y mener.
 - **Départ réel** : l'utilisateur part souvent sans pointer. Le lendemain, un bandeau lui demande
   l'heure de départ, préremplie avec l'heure prévue.
 
