@@ -1,0 +1,418 @@
+<title>Pointage 7h, cinq pistes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800;900&family=Figtree:wght@400;500;600;700&family=Archivo:wdth,wght@62..125,400;62..125,600;62..125,800;62..125,900&family=Onest:wght@300;400;500;600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Page de comparaison : trois pistes, trois écrans de téléphone chacune. */
+:root {
+  --page: #f3f3f1; --page-ink: #1a1a1c; --page-muted: #62626a; --page-line: #d9d9d4;
+  /* 1. Mélange doux */
+  --m-ground: #eef0ec; --m-card: #ffffff; --m-ink: #111a16; --m-muted: #5c6862; --m-accent: #2f45c9; --m-accent-soft: #e2e6fb; --m-pos: #18794a; --m-pos-soft: #dcf1e3; --m-pause: #c98a14; --m-cours: #6a3fb8; --m-cours-soft: #ece4f8; --m-track: #e3e7e1;
+  /* 2. Noir et blanc + lime */
+  --n-ground: #fafaf7; --n-ink: #0d0d0d; --n-muted: #6b6b66; --n-line: #e4e4de; --n-lime: #d4f45a; --n-card: #f0f0ea;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #121214; --page-ink: #ececee; --page-muted: #9a9aa2; --page-line: #2a2a2e; color-scheme: dark; } }
+:root[data-theme="dark"] { --page: #121214; --page-ink: #ececee; --page-muted: #9a9aa2; --page-line: #2a2a2e; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--page); color: var(--page-ink); font-family: "Figtree", system-ui, sans-serif; font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 40px; }
+header h1 { font-family: "Archivo", system-ui, sans-serif; font-stretch: 112%; font-weight: 800; font-size: 1.9rem; letter-spacing: -0.02em; margin: 0 0 6px; text-wrap: balance; }
+header p { margin: 0; color: var(--page-muted); max-width: 64ch; }
+.dir { display: flex; flex-direction: column; gap: 16px; }
+.dir-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.dir-head h2 { margin: 0; font-size: 1.45rem; letter-spacing: -0.02em; }
+.dir-head p { margin: 4px 0 0; color: var(--page-muted); max-width: 62ch; }
+.tag { font-weight: 700; font-size: 0.85rem; padding: 4px 12px; border-radius: 999px; background: var(--page-ink); color: var(--page); white-space: nowrap; }
+.phones { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+.col { display: flex; flex-direction: column; flex: 0 0 300px; scroll-snap-align: start; }
+.phone { height: 620px; border-radius: 40px; padding: 10px; background: #1b1b1d; box-shadow: 0 18px 40px -18px rgba(0,0,0,.45); }
+.screen { width: 100%; height: 100%; border-radius: 31px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+.cap { font-size: 0.85rem; color: var(--page-muted); margin-top: 8px; text-align: center; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.notes div { border-top: 2px solid var(--page-line); padding-top: 10px; }
+.notes b { display: block; margin-bottom: 2px; }
+.notes span { color: var(--page-muted); font-size: 0.92rem; }
+
+/* ===== 1. Mélange doux ===== */
+.th-m { background: var(--m-ground); color: var(--m-ink); padding: 18px 14px 0; gap: 10px; font-family: "Figtree", sans-serif; }
+.th-m .top { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 600; color: var(--m-muted); }
+.th-m .pill { background: var(--m-pos-soft); color: var(--m-pos); border-radius: 999px; padding: 3px 10px; font-weight: 700; }
+.th-m h3 { margin: 0; font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 1rem; letter-spacing: -0.01em; }
+.th-m .hero { background: var(--m-card); border-radius: 26px; padding: 18px 16px 16px; position: relative; display: flex; flex-direction: column; gap: 12px; }
+.th-m .n { font-family: "Unbounded", sans-serif; font-weight: 800; font-size: 4rem; line-height: .9; letter-spacing: -0.05em; }
+.th-m .l { font-size: 0.88rem; color: var(--m-muted); font-weight: 500; margin-top: -4px; }
+.th-m .sticker { position: absolute; right: 12px; top: -10px; transform: rotate(5deg); background: var(--m-accent); color: #fff; font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 0.78rem; padding: 7px 11px; border-radius: 13px; box-shadow: 0 8px 16px -8px rgba(47,69,201,.6); }
+.th-m .rib { display: flex; gap: 3px; height: 22px; }
+.th-m .rib span { border-radius: 999px; }
+.th-m .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.th-m .tile { background: var(--m-card); border-radius: 20px; padding: 11px 12px; }
+.th-m .tile .k { font-size: 0.74rem; color: var(--m-muted); font-weight: 600; }
+.th-m .tile .v { font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 1.15rem; letter-spacing: -0.03em; }
+.th-m .cta { background: var(--m-ink); color: #fff; border-radius: 999px; padding: 14px 18px; font-weight: 700; display: flex; justify-content: space-between; font-size: 0.95rem; }
+.th-m .nav { margin-top: auto; margin-inline: -14px; padding: 8px 12px 14px; display: flex; justify-content: space-around; font-size: 0.7rem; font-weight: 700; color: var(--m-muted); }
+.th-m .nav b { background: var(--m-ink); color: #fff; padding: 5px 11px; border-radius: 999px; }
+.th-m .day { display: grid; grid-template-columns: 40px 1fr 52px; gap: 8px; align-items: center; background: var(--m-card); border-radius: 18px; padding: 9px 11px; }
+.th-m .day .d { font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 0.78rem; line-height: 1.15; }
+.th-m .day .d small { display: block; font-family: "Figtree", sans-serif; font-weight: 500; color: var(--m-muted); font-size: 0.66rem; }
+.th-m .day .h { font-family: "Unbounded", sans-serif; font-weight: 600; font-size: 0.8rem; text-align: right; }
+.th-m .day .h small { display: block; font-family: "Figtree", sans-serif; font-weight: 600; font-size: 0.68rem; }
+.th-m .bar { height: 9px; border-radius: 999px; background: var(--m-track); display: flex; gap: 2px; overflow: hidden; }
+.th-m .bar span { border-radius: 999px; }
+.th-m .alert { background: var(--m-cours-soft); color: var(--m-ink); border-radius: 16px; padding: 9px 12px; font-size: 0.76rem; }
+.th-m .alert b { color: var(--m-cours); }
+.th-m .dots { display: flex; gap: 4px; justify-content: center; }
+.th-m .dots i { width: 6px; height: 6px; border-radius: 9px; background: #c8cec6; }
+.th-m .dots i.on { width: 18px; background: var(--m-ink); }
+
+/* ===== 2. Noir et blanc + lime ===== */
+.th-n { background: var(--n-ground); color: var(--n-ink); padding: 18px 14px 0; gap: 12px; font-family: "Figtree", sans-serif; }
+.th-n .top { display: flex; justify-content: space-between; font-size: 0.76rem; font-weight: 600; color: var(--n-muted); }
+.th-n .date { font-family: "Archivo", sans-serif; font-stretch: 118%; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; line-height: 1.05; }
+.th-n .black { background: var(--n-ink); color: #fff; border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.th-n .black .n { font-family: "Archivo", sans-serif; font-stretch: 125%; font-weight: 900; font-size: 4.2rem; line-height: .88; letter-spacing: -0.04em; }
+.th-n .black .l { font-size: 0.86rem; opacity: .75; }
+.th-n .hl { background: var(--n-lime); color: var(--n-ink); padding: 0 6px; border-radius: 6px; font-weight: 700; }
+.th-n .line { display: flex; height: 8px; gap: 2px; margin-top: 10px; }
+.th-n .line span { border-radius: 2px; }
+.th-n .rows { border-top: 1.5px solid var(--n-ink); }
+.th-n .r { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 2px; border-bottom: 1px solid var(--n-line); font-size: 0.88rem; }
+.th-n .r .v { font-family: "Archivo", sans-serif; font-stretch: 112%; font-weight: 700; font-variant-numeric: tabular-nums; }
+.th-n .btn { border: 1.5px solid var(--n-ink); border-radius: 14px; padding: 12px 14px; font-weight: 700; display: flex; justify-content: space-between; font-size: 0.92rem; }
+.th-n .nav { margin-top: auto; margin-inline: -14px; border-top: 1.5px solid var(--n-ink); display: flex; justify-content: space-around; padding: 10px 0 16px; font-size: 0.7rem; font-weight: 700; color: var(--n-muted); }
+.th-n .nav b { color: var(--n-ink); text-decoration: underline; text-decoration-color: var(--n-lime); text-decoration-thickness: 4px; text-underline-offset: 3px; }
+.th-n .wk { display: grid; grid-template-columns: 36px 1fr 46px; gap: 10px; align-items: center; padding: 10px 2px; border-bottom: 1px solid var(--n-line); font-size: 0.85rem; }
+.th-n .wk .d { font-weight: 700; }
+.th-n .wk .t { height: 14px; display: flex; gap: 2px; }
+.th-n .wk .t span { border-radius: 2px; }
+.th-n .wk .h { text-align: right; font-family: "Archivo", sans-serif; font-stretch: 112%; font-weight: 700; font-size: 0.85rem; }
+.th-n .huge { font-family: "Archivo", sans-serif; font-stretch: 125%; font-weight: 900; font-size: 3.6rem; line-height: .9; letter-spacing: -0.04em; }
+.th-n .stamp { display: inline-block; background: var(--n-lime); border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 0.78rem; }
+
+/* ===== 3. Couleur du moment ===== */
+.th-c { padding: 20px 18px 0; gap: 14px; font-family: "Onest", sans-serif; color: #1d2430; background: linear-gradient(180deg, #ffe9c7 0%, #fff6e8 55%); }
+.th-c.done { background: linear-gradient(180deg, #d5f0de 0%, #f1faf3 60%); }
+.th-c.cool { background: linear-gradient(180deg, #dfe8ff 0%, #f3f6ff 60%); }
+.th-c .top { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 500; opacity: .7; }
+.th-c .moment { font-size: 0.95rem; font-weight: 500; }
+.th-c .mega { font-weight: 300; font-size: 5.6rem; line-height: .9; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
+.th-c .sub { font-size: 1rem; }
+.th-c .sub b { font-weight: 600; }
+.th-c .arc { height: 6px; border-radius: 6px; background: rgba(29,36,48,.1); position: relative; }
+.th-c .arc i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: #1d2430; }
+.th-c .arc em { position: absolute; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 3px solid #1d2430; transform: translateX(-50%); }
+.th-c .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.th-c .chips span { background: rgba(255,255,255,.7); border-radius: 999px; padding: 6px 11px; font-size: 0.8rem; font-weight: 500; }
+.th-c .act { background: #1d2430; color: #fff; border-radius: 18px; padding: 15px 18px; font-weight: 600; display: flex; justify-content: space-between; }
+.th-c .nav { margin-top: auto; margin-inline: -18px; padding: 10px 0 16px; display: flex; justify-content: space-around; font-size: 0.7rem; font-weight: 500; opacity: .8; }
+.th-c .nav b { font-weight: 700; opacity: 1; }
+.th-c .wd { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.65); border-radius: 16px; padding: 10px 12px; font-size: 0.88rem; }
+.th-c .wd .sw { width: 12px; height: 34px; border-radius: 6px; }
+.th-c .wd .h { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ===== 4. Suivi façon livraison ===== */
+.th-t { background: #ffffff; color: #15181d; padding: 18px 16px 0; gap: 12px; font-family: "Hanken Grotesk", sans-serif; }
+.th-t .top { display: flex; justify-content: space-between; font-size: 0.78rem; color: #6d737c; font-weight: 500; }
+.th-t .eta { background: #f2f4f6; border-radius: 18px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+.th-t .eta .n { font-weight: 800; font-size: 2.9rem; line-height: .95; letter-spacing: -0.04em; }
+.th-t .eta .k { font-size: 0.8rem; color: #6d737c; }
+.th-t .eta .dep { text-align: right; }
+.th-t .eta .dep b { display: block; font-size: 1.35rem; font-weight: 800; color: #0f8a5f; }
+.th-t .track { position: relative; padding-left: 26px; display: flex; flex-direction: column; gap: 14px; }
+.th-t .track::before { content: ""; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 3px; background: #e3e6ea; border-radius: 3px; }
+.th-t .track::after { content: ""; position: absolute; left: 8px; top: 8px; height: 62%; width: 3px; background: #0f8a5f; border-radius: 3px; }
+.th-t .st { position: relative; display: flex; justify-content: space-between; font-size: 0.9rem; }
+.th-t .st::before { content: ""; position: absolute; left: -24px; top: 3px; width: 13px; height: 13px; border-radius: 50%; background: #0f8a5f; box-shadow: 0 0 0 3px #fff; }
+.th-t .st.todo::before { background: #fff; border: 3px solid #c9ced5; width: 7px; height: 7px; }
+.th-t .st.now::before { background: #fff; border: 3px solid #0f8a5f; width: 9px; height: 9px; left: -25px; }
+.th-t .st small { display: block; color: #6d737c; font-size: 0.76rem; }
+.th-t .st .t { font-weight: 700; font-variant-numeric: tabular-nums; }
+.th-t .go { background: #0f8a5f; color: #fff; border-radius: 14px; padding: 14px; text-align: center; font-weight: 700; }
+.th-t .nav { margin-top: auto; margin-inline: -16px; border-top: 1px solid #eceef1; display: flex; justify-content: space-around; padding: 10px 0 16px; font-size: 0.7rem; color: #8a9099; font-weight: 600; }
+.th-t .nav b { color: #0f8a5f; }
+.th-t .wk { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; font-size: 0.88rem; padding: 8px 0; border-bottom: 1px solid #eef0f2; }
+.th-t .wk i { width: 14px; height: 14px; border-radius: 50%; }
+.th-t .wk small { color: #6d737c; }
+
+/* ===== 5. Widgets sombres ===== */
+.th-w { background: #101114; color: #f1f1f3; padding: 18px 12px 0; gap: 8px; font-family: "Schibsted Grotesk", sans-serif; }
+.th-w .top { display: flex; justify-content: space-between; font-size: 0.78rem; color: #8b8d96; padding: 0 4px; }
+.th-w .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.th-w .w { border-radius: 22px; padding: 13px; background: #1b1c21; display: flex; flex-direction: column; gap: 3px; min-height: 92px; }
+.th-w .w.wide { grid-column: span 2; }
+.th-w .w .k { font-size: 0.72rem; color: #9a9ca6; font-weight: 500; }
+.th-w .w .v { font-weight: 700; font-size: 1.5rem; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.th-w .w.main { background: #23263a; min-height: 168px; justify-content: space-between; }
+.th-w .w.main .v { font-size: 4.2rem; line-height: .9; letter-spacing: -0.05em; }
+.th-w .w.pos { background: #16291f; } .th-w .w.pos .v { color: #6fe0a0; }
+.th-w .w.cours { background: #241f33; } .th-w .w.cours .v { color: #b9a3ff; }
+.th-w .bar { display: flex; gap: 3px; height: 8px; }
+.th-w .bar span { border-radius: 4px; }
+.th-w .nav { margin-top: auto; margin-inline: -12px; display: flex; justify-content: space-around; padding: 12px 0 16px; font-size: 0.7rem; color: #7e808a; }
+.th-w .nav b { color: #f1f1f3; }
+.th-w .mini { display: flex; align-items: flex-end; gap: 5px; height: 44px; }
+.th-w .mini span { flex: 1; border-radius: 5px; background: #8c95ff; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Cinq pistes pour Pointage 7h</h1>
+    <p>Mêmes écrans, mêmes données d'exemple (mercredi 14 octobre, arrivée 8h15, pause 12h15–13h05, cours lundi et mardi la semaine prochaine). La première est proche de ce que tu as aimé, les suivantes s'en éloignent de plus en plus.</p>
+  </header>
+
+  <!-- ================= 1 ================= -->
+  <section class="dir">
+    <div class="dir-head">
+      <div><h2>1. Mélange doux</h2><p>Le fond et les couleurs de l'appli actuelle, avec la personnalité de l'option A : gros chiffres arrondis, cartes blanches en mosaïque, l'heure de départ en sticker. Une seule couleur vive, le bleu.</p></div>
+      <span class="tag">Similaire</span>
+    </div>
+    <div class="phones">
+      <div class="col"><div class="phone"><div class="screen th-m">
+        <div class="top"><span>Mer. 14 octobre</span><span class="pill">Mois +0h43</span></div>
+        <div class="alert"><b>Semaine prochaine</b> : cours lundi et mardi.</div>
+        <div class="hero"><div class="sticker">départ 16h05</div>
+          <div><div class="n">1h45</div><div class="l">avant de pouvoir partir</div></div>
+          <div class="rib"><span style="flex:4.1;background:var(--m-accent)"></span><span style="flex:.8;background:repeating-linear-gradient(135deg,var(--m-pause) 0 4px,#f4e3c0 4px 8px)"></span><span style="flex:1.25;background:var(--m-accent)"></span><span style="flex:1.75;background:var(--m-accent-soft);box-shadow:inset 0 0 0 1.5px var(--m-accent)"></span><span style="flex:2.4;background:var(--m-track)"></span></div>
+        </div>
+        <div class="tiles"><div class="tile"><div class="k">Déjà fait</div><div class="v">5h15</div></div><div class="tile"><div class="k">Mois à 0</div><div class="v">15h45</div></div></div>
+        <div class="cta"><span>Pointer mon départ</span><span>14h20</span></div>
+        <div class="nav"><b>Journée</b><span>Semaines</span><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Journée</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-m">
+        <div class="top"><span>12 au 16 oct.</span><span class="pill">+0h33</span></div>
+        <h3>Cette semaine</h3>
+        <div class="day"><div class="d">Lun<small>12 oct.</small></div><div class="bar"><span style="flex:4;background:var(--m-accent)"></span><span style="flex:.8;background:var(--m-pause)"></span><span style="flex:3;background:var(--m-accent)"></span><span style="flex:1"></span></div><div class="h">7h25<small style="color:var(--m-pos)">+0h25</small></div></div>
+        <div class="day"><div class="d">Mar<small>13 oct.</small></div><div class="bar"><span style="flex:4;background:var(--m-accent)"></span><span style="flex:.8;background:var(--m-pause)"></span><span style="flex:2.9;background:var(--m-accent)"></span><span style="flex:1"></span></div><div class="h">7h08<small style="color:var(--m-pos)">+0h08</small></div></div>
+        <div class="day" style="box-shadow:inset 0 0 0 2px var(--m-accent)"><div class="d">Mer<small>14 oct.</small></div><div class="bar"><span style="flex:4;background:var(--m-accent)"></span><span style="flex:.8;background:var(--m-pause)"></span><span style="flex:1.3;background:var(--m-accent)"></span><span style="flex:2.6"></span></div><div class="h">5h15<small style="color:var(--m-muted)">en cours</small></div></div>
+        <div class="day" style="background:var(--m-cours-soft)"><div class="d">Jeu<small>15 oct.</small></div><div style="font-weight:700;font-size:.78rem;color:var(--m-cours)">Cours</div><div class="h">7h00</div></div>
+        <div class="day" style="background:var(--m-cours-soft)"><div class="d">Ven<small>16 oct.</small></div><div style="font-weight:700;font-size:.78rem;color:var(--m-cours)">Cours</div><div class="h">7h00</div></div>
+        <div class="dots"><i></i><i class="on"></i><i></i></div>
+        <div class="nav"><span>Journée</span><b>Semaines</b><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Semaines (glisser)</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-m">
+        <div class="top"><span>2026</span><span>Solde du mois</span></div>
+        <h3>Octobre</h3>
+        <div class="hero"><div style="font-weight:700;color:var(--m-pos);font-size:.9rem">Tu es en positif</div><div class="n" style="color:var(--m-pos)">+0h43</div><div class="l">à prendre avant le 31 octobre</div>
+          <svg viewBox="0 0 260 80" width="100%" aria-hidden="true"><line x1="0" x2="260" y1="58" y2="58" stroke="#d3d9d2" stroke-width="1.5" stroke-dasharray="4 5"/><path d="M6 58 L40 58 L58 66 L76 46 L120 46 L150 26 L176 14 L176 58 L6 58Z" fill="#18794a" fill-opacity=".12"/><path d="M6 58 L40 58 L58 66 L76 46 L120 46 L150 26 L176 14" fill="none" stroke="#18794a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="176" cy="14" r="6" fill="#18794a" stroke="#fff" stroke-width="2.5"/></svg>
+        </div>
+        <div class="tiles"><div class="tile"><div class="k">Travaillés</div><div class="v">8</div></div><div class="tile"><div class="k">Cours</div><div class="v">8</div></div></div>
+        <div class="nav"><span>Journée</span><span>Semaines</span><b>Mois</b><span>Réglages</span></div>
+      </div></div><div class="cap">Mois</div></div>
+    </div>
+    <div class="notes">
+      <div><b>Ce qui reste</b><span>Ton fond, ton bleu, la barre horaire et la pastille du mois.</span></div>
+      <div><b>Ce qui vient de A</b><span>Les gros chiffres arrondis, le sticker de départ, les cartes en mosaïque, la barre d'onglets en pilule.</span></div>
+      <div><b>Risque</b><span>Proche de l'actuel : l'effet de nouveauté est léger.</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 2 ================= -->
+  <section class="dir">
+    <div class="dir-head">
+      <div><h2>2. Noir, blanc et lime</h2><p>Presque tout en noir et blanc, une police large et grasse, des listes nettes séparées par des filets. Une seule couleur, le lime, qui surligne ce qui compte : ton heure de départ et ton solde quand il est positif.</p></div>
+      <span class="tag">Différent</span>
+    </div>
+    <div class="phones">
+      <div class="col"><div class="phone"><div class="screen th-n">
+        <div class="top"><span>Pointage 7h</span><span>Mois <span class="hl">+0h43</span></span></div>
+        <div class="date">Mercredi<br>14 octobre</div>
+        <div class="black"><div class="n">1h45</div><div class="l">avant de partir à <span class="hl">16h05</span></div>
+          <div class="line"><span style="flex:4.1;background:#fff"></span><span style="flex:.8;background:#6b6b66"></span><span style="flex:1.25;background:#fff"></span><span style="flex:1.75;background:var(--n-lime)"></span><span style="flex:2.4;background:#2a2a2a"></span></div></div>
+        <div class="rows">
+          <div class="r"><span>Arrivée</span><span class="v">8h15</span></div>
+          <div class="r"><span>Pause</span><span class="v">12h15 – 13h05</span></div>
+          <div class="r"><span>Départ pour un mois à 0</span><span class="v">15h45</span></div>
+        </div>
+        <div class="btn"><span>Pointer mon départ</span><span>14h20</span></div>
+        <div class="nav"><b>Journée</b><span>Semaines</span><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Journée</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-n">
+        <div class="top"><span>‹ 5 au 9 oct.</span><span>19 au 23 oct. ›</span></div>
+        <div class="date">12 au 16<br>octobre</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="huge" style="font-size:2.4rem">19h48</span><span class="stamp">+0h33</span></div>
+        <div class="rows">
+          <div class="wk"><span class="d">Lun</span><div class="t"><span style="flex:4;background:var(--n-ink)"></span><span style="flex:.8;background:#bdbdb6"></span><span style="flex:3;background:var(--n-ink)"></span><span style="flex:1"></span></div><span class="h">7h25</span></div>
+          <div class="wk"><span class="d">Mar</span><div class="t"><span style="flex:4;background:var(--n-ink)"></span><span style="flex:.8;background:#bdbdb6"></span><span style="flex:2.9;background:var(--n-ink)"></span><span style="flex:1"></span></div><span class="h">7h08</span></div>
+          <div class="wk"><span class="d">Mer</span><div class="t"><span style="flex:4;background:var(--n-ink)"></span><span style="flex:.8;background:#bdbdb6"></span><span style="flex:1.3;background:var(--n-ink)"></span><span style="flex:2.6;background:var(--n-lime)"></span></div><span class="h">5h15</span></div>
+          <div class="wk"><span class="d">Jeu</span><div class="t"><span style="flex:1;background:repeating-linear-gradient(90deg,var(--n-ink) 0 2px,transparent 2px 6px)"></span></div><span class="h" style="color:var(--n-muted)">Cours</span></div>
+          <div class="wk"><span class="d">Ven</span><div class="t"><span style="flex:1;background:repeating-linear-gradient(90deg,var(--n-ink) 0 2px,transparent 2px 6px)"></span></div><span class="h" style="color:var(--n-muted)">Cours</span></div>
+        </div>
+        <div style="font-size:.8rem"><span class="stamp">À noter</span> semaine prochaine, cours lundi et mardi.</div>
+        <div class="nav"><span>Journée</span><b>Semaines</b><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Semaines (glisser)</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-n">
+        <div class="top"><span>2026</span><span>Solde du mois</span></div>
+        <div class="date">Octobre</div>
+        <div><div style="font-weight:700">Tu es en positif</div><div class="huge"><span class="hl" style="padding:0 8px;border-radius:12px">+0h43</span></div></div>
+        <svg viewBox="0 0 260 80" width="100%" aria-hidden="true"><line x1="0" x2="260" y1="58" y2="58" stroke="#0d0d0d" stroke-width="1.5"/><path d="M6 58 L40 58 L58 66 L76 46 L120 46 L150 26 L176 14" fill="none" stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round"/><circle cx="176" cy="14" r="7" fill="#d4f45a" stroke="#0d0d0d" stroke-width="2.5"/></svg>
+        <div class="rows">
+          <div class="r"><span>Jours travaillés</span><span class="v">8</span></div>
+          <div class="r"><span>Jours de cours</span><span class="v">8</span></div>
+          <div class="r"><span>À remplir</span><span class="v">1</span></div>
+        </div>
+        <div class="nav"><span>Journée</span><span>Semaines</span><b>Mois</b><span>Réglages</span></div>
+      </div></div><div class="cap">Mois</div></div>
+    </div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Très calme et très lisible. Le lime attire l'œil exactement où il faut. Élégant aussi sur le PC.</span></div>
+      <div><b>Ce qui reste</b><span>Le compte à rebours géant et la barre horaire, ici en noir et blanc.</span></div>
+      <div><b>Risque</b><span>Plus sévère : peu de couleur pour distinguer cours, pause et travail.</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 3 ================= -->
+  <section class="dir">
+    <div class="dir-head">
+      <div><h2>3. Couleur du moment</h2><p>Un écran presque vide : un seul énorme chiffre, et le fond qui change de teinte selon le moment. Bleu le matin, ambré l'après-midi, vert quand ton quota est atteint. Tu sais où tu en es avant même de lire.</p></div>
+      <span class="tag">Minimal</span>
+    </div>
+    <div class="phones">
+      <div class="col"><div class="phone"><div class="screen th-c">
+        <div class="top"><span>Mercredi 14 octobre</span><span>Mois +0h43</span></div>
+        <div class="moment">Après-midi, au travail</div>
+        <div><div class="mega">1h45</div><div class="sub">avant de pouvoir partir à <b>16h05</b></div></div>
+        <div class="arc"><i style="width:75%"></i><em style="left:75%"></em></div>
+        <div class="chips"><span>Arrivée 8h15</span><span>Pause 50 min</span><span>Mois à 0 : 15h45</span></div>
+        <div class="act"><span>Pointer mon départ</span><span>14h20</span></div>
+        <div class="nav"><b>Journée</b><span>Semaines</span><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Journée (l'après-midi)</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-c cool">
+        <div class="top"><span>12 au 16 octobre</span><span>+0h33</span></div>
+        <div class="moment">Cette semaine</div>
+        <div class="mega" style="font-size:3.6rem">19h48</div>
+        <div class="wd"><span class="sw" style="background:#1d2430"></span>Lundi<span class="h">7h25</span></div>
+        <div class="wd"><span class="sw" style="background:#1d2430"></span>Mardi<span class="h">7h08</span></div>
+        <div class="wd"><span class="sw" style="background:linear-gradient(#1d2430 70%,#ffd08a 70%)"></span>Mercredi<span class="h">5h15</span></div>
+        <div class="wd"><span class="sw" style="background:#a99bf0"></span>Jeudi, cours<span class="h">7h00</span></div>
+        <div class="wd"><span class="sw" style="background:#a99bf0"></span>Vendredi, cours<span class="h">7h00</span></div>
+        <div class="nav"><span>Journée</span><b>Semaines</b><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Semaines (glisser)</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-c done">
+        <div class="top"><span>Octobre 2026</span><span>Solde</span></div>
+        <div class="moment">Tu es en positif</div>
+        <div class="mega" style="color:#17663d">+0h43</div>
+        <div class="sub">à prendre avant le 31 octobre</div>
+        <svg viewBox="0 0 260 80" width="100%" aria-hidden="true"><path d="M6 58 L40 58 L58 66 L76 46 L120 46 L150 26 L176 14" fill="none" stroke="#17663d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="176" cy="14" r="6" fill="#fff" stroke="#17663d" stroke-width="3"/></svg>
+        <div class="chips"><span>8 jours travaillés</span><span>8 jours de cours</span><span>1 à remplir</span></div>
+        <div class="nav"><span>Journée</span><span>Semaines</span><b>Mois</b><span>Réglages</span></div>
+      </div></div><div class="cap">Mois (fond vert : en positif)</div></div>
+    </div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Le plus épuré : rien d'autre que l'essentiel. La couleur du fond te donne l'info sans lire.</span></div>
+      <div><b>Ce qui reste</b><span>Compte à rebours géant, barre de progression, graphique du mois.</span></div>
+      <div><b>Risque</b><span>Moins de détails visibles d'un coup, il faut ouvrir un jour pour voir ses heures.</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 4 ================= -->
+  <section class="dir">
+    <div class="dir-head">
+      <div><h2>4. Suivi façon livraison</h2><p>Ta journée racontée comme le suivi d'un colis : une ligne verticale avec chaque étape (arrivée, pause, reprise, départ), l'étape en cours qui avance, et en haut « départ estimé ». Blanc, net, un vert pour ce qui est fait.</p></div>
+      <span class="tag">Familier</span>
+    </div>
+    <div class="phones">
+      <div class="col"><div class="phone"><div class="screen th-t">
+        <div class="top"><span>Mer. 14 octobre</span><span>Mois +0h43</span></div>
+        <div class="eta"><div><div class="k">Encore</div><div class="n">1h45</div></div><div class="dep"><span class="k">Départ estimé</span><b>16h05</b></div></div>
+        <div class="track">
+          <div class="st"><span>Arrivée<small>dans la plage 8h00–8h30</small></span><span class="t">8h15</span></div>
+          <div class="st"><span>Pause midi<small>50 min</small></span><span class="t">12h15</span></div>
+          <div class="st"><span>Reprise<small>5 min après l'heure prévue</small></span><span class="t">13h05</span></div>
+          <div class="st now"><span>Au travail<small>5h15 faites sur 7h00</small></span><span class="t">14h20</span></div>
+          <div class="st todo"><span>Départ<small>pour un mois à 0 : 15h45</small></span><span class="t">16h05</span></div>
+        </div>
+        <div class="go">Pointer mon départ</div>
+        <div class="nav"><b>Journée</b><span>Semaines</span><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Journée</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-t">
+        <div class="top"><span>‹ Semaine passée</span><span>Semaine prochaine ›</span></div>
+        <div class="eta"><div><div class="k">Semaine du 12 octobre</div><div class="n">19h48</div></div><div class="dep"><span class="k">Écart</span><b>+0h33</b></div></div>
+        <div>
+          <div class="wk"><i style="background:#0f8a5f"></i><span>Lundi <small>8h00 → 16h10</small></span><b>7h25</b></div>
+          <div class="wk"><i style="background:#0f8a5f"></i><span>Mardi <small>8h05 → 16h00</small></span><b>7h08</b></div>
+          <div class="wk"><i style="background:#fff;border:3px solid #0f8a5f;width:8px;height:8px"></i><span>Mercredi <small>en cours</small></span><b>5h15</b></div>
+          <div class="wk"><i style="background:#7a5af5"></i><span>Jeudi <small>cours</small></span><b>7h00</b></div>
+          <div class="wk"><i style="background:#7a5af5"></i><span>Vendredi <small>cours</small></span><b>7h00</b></div>
+        </div>
+        <div style="background:#f1edff;border-radius:12px;padding:9px 12px;font-size:.8rem">Semaine prochaine : cours lundi et mardi</div>
+        <div class="nav"><span>Journée</span><b>Semaines</b><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Semaines (glisser)</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-t">
+        <div class="top"><span>Octobre 2026</span><span>Solde du mois</span></div>
+        <div class="eta"><div><div class="k">Tu es en positif</div><div class="n" style="color:#0f8a5f">+0h43</div></div><div class="dep"><span class="k">À prendre avant</span><b style="color:#15181d">31 oct.</b></div></div>
+        <svg viewBox="0 0 260 80" width="100%" aria-hidden="true"><line x1="0" x2="260" y1="58" y2="58" stroke="#e3e6ea" stroke-width="2"/><path d="M6 58 L40 58 L58 66 L76 46 L120 46 L150 26 L176 14" fill="none" stroke="#0f8a5f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="176" cy="14" r="6" fill="#0f8a5f" stroke="#fff" stroke-width="2.5"/></svg>
+        <div>
+          <div class="wk"><i style="background:#0f8a5f"></i><span>Jours travaillés</span><b>8</b></div>
+          <div class="wk"><i style="background:#7a5af5"></i><span>Jours de cours</span><b>8</b></div>
+          <div class="wk"><i style="background:#fff;border:3px solid #c9ced5;width:8px;height:8px"></i><span>À remplir</span><b>1</b></div>
+        </div>
+        <div class="nav"><span>Journée</span><span>Semaines</span><b>Mois</b><span>Réglages</span></div>
+      </div></div><div class="cap">Mois</div></div>
+    </div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Tout le monde sait lire un suivi de colis. Chaque pointage a sa place, l'étape en cours saute aux yeux.</span></div>
+      <div><b>Changement</b><span>La barre horaire devient une ligne verticale d'étapes.</span></div>
+      <div><b>Risque</b><span>Plus long en hauteur, le compte à rebours est un peu moins énorme.</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 5 ================= -->
+  <section class="dir">
+    <div class="dir-head">
+      <div><h2>5. Widgets sombres</h2><p>Un écran d'accueil de widgets sur fond presque noir : un grand widget pour le temps restant, des petits pour le départ, le solde et les cours. Chaque widget a sa teinte sourde, rien de criard.</p></div>
+      <span class="tag">Sombre moderne</span>
+    </div>
+    <div class="phones">
+      <div class="col"><div class="phone"><div class="screen th-w">
+        <div class="top"><span>Mercredi 14 octobre</span><span>14:20</span></div>
+        <div class="grid">
+          <div class="w main wide"><span class="k">Il te reste</span><span class="v">1h45</span>
+            <div class="bar"><span style="flex:4.1;background:#8c95ff"></span><span style="flex:.8;background:#e0a94a"></span><span style="flex:1.25;background:#8c95ff"></span><span style="flex:1.75;background:#3b3f63"></span><span style="flex:2.4;background:#2a2c3a"></span></div></div>
+          <div class="w"><span class="k">Départ</span><span class="v">16h05</span><span class="k">pour 7h00</span></div>
+          <div class="w pos"><span class="k">Mois</span><span class="v">+0h43</span><span class="k">départ 15h45</span></div>
+          <div class="w cours wide" style="min-height:0"><span class="k">Semaine prochaine</span><span style="font-weight:600">Cours lundi et mardi</span></div>
+        </div>
+        <div style="background:#f1f1f3;color:#101114;border-radius:18px;padding:14px;font-weight:700;display:flex;justify-content:space-between"><span>Pointer mon départ</span><span>14h20</span></div>
+        <div class="nav"><b>Journée</b><span>Semaines</span><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Journée</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-w">
+        <div class="top"><span>12 au 16 octobre</span><span>‹ ›</span></div>
+        <div class="grid">
+          <div class="w wide"><span class="k">Cette semaine</span><span class="v" style="font-size:2.4rem">19h48 <span style="font-size:1rem;color:#6fe0a0">+0h33</span></span>
+            <div class="mini"><span style="height:100%"></span><span style="height:96%"></span><span style="height:70%;background:#e0a94a"></span><span style="height:94%;background:#b9a3ff"></span><span style="height:94%;background:#b9a3ff"></span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#8b8d96"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span></div></div>
+          <div class="w"><span class="k">Lundi</span><span class="v">7h25</span><span class="k" style="color:#6fe0a0">+0h25</span></div>
+          <div class="w"><span class="k">Mardi</span><span class="v">7h08</span><span class="k" style="color:#6fe0a0">+0h08</span></div>
+          <div class="w cours"><span class="k">Jeudi</span><span class="v">Cours</span></div>
+          <div class="w cours"><span class="k">Vendredi</span><span class="v">Cours</span></div>
+        </div>
+        <div class="nav"><span>Journée</span><b>Semaines</b><span>Mois</span><span>Réglages</span></div>
+      </div></div><div class="cap">Semaines (glisser)</div></div>
+
+      <div class="col"><div class="phone"><div class="screen th-w">
+        <div class="top"><span>Octobre 2026</span><span>Solde</span></div>
+        <div class="grid">
+          <div class="w pos wide main"><span class="k">Tu es en positif</span><span class="v">+0h43</span>
+            <svg viewBox="0 0 260 60" width="100%" aria-hidden="true"><path d="M6 44 L40 44 L58 52 L76 34 L120 34 L150 18 L176 8" fill="none" stroke="#6fe0a0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="176" cy="8" r="5" fill="#6fe0a0"/></svg></div>
+          <div class="w"><span class="k">Travaillés</span><span class="v">8</span></div>
+          <div class="w cours"><span class="k">Cours</span><span class="v">8</span></div>
+          <div class="w wide" style="min-height:0"><span class="k">À remplir</span><span style="font-weight:600">Lundi 12 octobre</span></div>
+        </div>
+        <div class="nav"><span>Journée</span><span>Semaines</span><b>Mois</b><span>Réglages</span></div>
+      </div></div><div class="cap">Mois</div></div>
+    </div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Moderne, tout est visible d'un coup sans être serré. Agréable le soir et sur PC.</span></div>
+      <div><b>Ce qui reste</b><span>Compte à rebours géant avec sa barre, mosaïque proche de l'option A, mais en sombre et en teintes douces.</span></div>
+      <div><b>Risque</b><span>Le style widget est à la mode : il peut vieillir vite.</span></div>
+    </div>
+  </section>
+</div>

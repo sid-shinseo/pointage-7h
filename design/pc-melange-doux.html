@@ -1,0 +1,278 @@
+<title>Pointage 7h sur PC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Page de comparaison : trois mises en page ordinateur du thème Mélange doux, chaque écran dessiné à 1280×800 puis mis à l'échelle. */
+:root {
+  --page: #f4f5f2; --page-ink: #17201b; --page-muted: #5c6862; --page-line: #d6dbd4;
+  --ground: #eef0ec; --card: #ffffff; --ink: #111a16; --muted: #5c6862; --line: #e1e5df;
+  --accent: #2f45c9; --accent-soft: #e2e6fb; --pos: #18794a; --pos-soft: #dcf1e3; --neg: #c03a1e;
+  --pause: #c98a14; --pause-soft: #f4e3c0; --cours: #6a3fb8; --cours-soft: #ece4f8; --track: #e3e7e1;
+  --display: "Unbounded", "Segoe UI", system-ui, sans-serif; --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #111412; --page-ink: #e8ece9; --page-muted: #9aa69f; --page-line: #2a312d; color-scheme: dark; } }
+:root[data-theme="dark"] { --page: #111412; --page-ink: #e8ece9; --page-muted: #9aa69f; --page-line: #2a312d; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--page); color: var(--page-ink); font-family: var(--body); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 44px; }
+header h1 { font-family: var(--display); font-weight: 600; font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 8px; text-wrap: balance; }
+header p { margin: 0; color: var(--page-muted); max-width: 66ch; }
+.prop { display: flex; flex-direction: column; gap: 14px; }
+.prop-head h2 { margin: 0; font-size: 1.35rem; letter-spacing: -0.01em; }
+.prop-head p { margin: 4px 0 0; color: var(--page-muted); max-width: 70ch; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.notes div { border-top: 2px solid var(--page-line); padding-top: 10px; }
+.notes b { display: block; }
+.notes span { color: var(--page-muted); font-size: 0.92rem; }
+
+/* Cadre navigateur mis à l'échelle */
+.viewport { width: 100%; aspect-ratio: 1280 / 836; position: relative; border-radius: 14px; overflow: hidden; box-shadow: 0 24px 50px -24px rgba(0,0,0,.35); max-width: 100%; }
+.browser { position: absolute; top: 0; left: 0; width: 1280px; height: 836px; transform-origin: top left; transform: scale(var(--s, .9)); background: #dfe2dd; display: flex; flex-direction: column; }
+.chrome { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: #e9ebe7; }
+.chrome i { width: 11px; height: 11px; border-radius: 50%; background: #c9cdc7; }
+.chrome span { margin-left: 18px; background: #fff; border-radius: 8px; height: 22px; flex: 0 0 360px; font-size: 12px; color: #7a847e; display: flex; align-items: center; padding: 0 10px; }
+.app { flex: 1; background: var(--ground); color: var(--ink); font-family: var(--body); display: flex; min-height: 0; }
+
+/* Composants communs */
+.card { background: var(--card); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; position: relative; }
+.n { font-family: var(--display); font-weight: 800; letter-spacing: -0.05em; line-height: .9; }
+.t { font-family: var(--display); font-weight: 600; letter-spacing: -0.02em; }
+.muted { color: var(--muted); }
+.lbl { font-size: 13px; color: var(--muted); font-weight: 600; }
+.sticker { position: absolute; transform: rotate(5deg); background: var(--accent); color: #fff; font-family: var(--display); font-weight: 600; font-size: 14px; padding: 8px 13px; border-radius: 14px; box-shadow: 0 10px 18px -10px rgba(47,69,201,.7); }
+.pill { border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 13px; display: inline-flex; gap: 6px; align-items: baseline; }
+.pill.pos { background: var(--pos-soft); color: var(--pos); }
+.pill.cours { background: var(--cours-soft); color: var(--cours); }
+.rib { display: flex; gap: 3px; height: 26px; }
+.rib span { border-radius: 999px; }
+.w { background: var(--accent); } .p { background: repeating-linear-gradient(135deg, var(--pause) 0 4px, var(--pause-soft) 4px 8px); } .f { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); } .e { background: var(--track); } .c { background: var(--cours-soft); }
+.scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 0 2px; }
+.tiles { display: grid; gap: 10px; }
+.tile { background: var(--ground); border-radius: 18px; padding: 12px 14px; }
+.tile .v { font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -0.03em; }
+.cta { background: var(--ink); color: #fff; border-radius: 999px; padding: 15px 22px; font-weight: 700; display: flex; justify-content: space-between; font-size: 16px; }
+.fields { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.fld { display: flex; flex-direction: column; gap: 4px; }
+.fld label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.fld div { background: var(--ground); border-radius: 12px; padding: 9px 12px; font-family: var(--display); font-weight: 500; font-size: 15px; }
+.fld div.empty { color: #a3aca6; }
+.alert { background: var(--cours-soft); border-radius: 16px; padding: 11px 14px; font-size: 14px; }
+.alert b { color: var(--cours); }
+.day { display: grid; grid-template-columns: 56px 1fr 70px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; }
+.day.today { box-shadow: inset 0 0 0 2px var(--accent); }
+.day.cr { background: var(--cours-soft); }
+.day .d { font-family: var(--display); font-weight: 600; font-size: 14px; line-height: 1.15; }
+.day .d small { display: block; font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--muted); }
+.day .h { text-align: right; font-family: var(--display); font-weight: 600; font-size: 14px; }
+.day .h small { display: block; font-family: var(--body); font-weight: 600; font-size: 12px; }
+.bar { height: 10px; border-radius: 999px; background: var(--track); display: flex; gap: 2px; overflow: hidden; }
+.bar span { border-radius: 999px; }
+.navbtn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); display: grid; place-items: center; font-size: 16px; color: var(--ink); }
+.navbtn svg { width: 16px; height: 16px; }
+.chart text { font-family: var(--body); font-size: 11px; fill: var(--muted); }
+
+.times { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.times.two { grid-template-columns: 1fr 1fr; }
+.tm { background: var(--ground); border-radius: 16px; padding: 11px 13px; display: flex; flex-direction: column; gap: 2px; }
+.tm .lbl { font-size: 12px; }
+.tm .v { font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: -0.02em; }
+.tm .s { font-size: 12px; color: var(--muted); }
+.times:not(.two) .tm .v { font-size: 16px; white-space: nowrap; }
+.tm.plan { background: var(--accent-soft); }
+.tm.plan .v { color: var(--accent); }
+.tm.todo { background: transparent; border: 1.5px dashed #b9c1bb; }
+.tm.todo .v { color: #9aa49e; }
+
+/* ===== Proposition 1 : rail latéral + tableau de bord ===== */
+.p1 .rail { width: 220px; padding: 24px 16px; display: flex; flex-direction: column; gap: 6px; }
+.p1 .brand { font-family: var(--display); font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 8px; margin-bottom: 18px; padding-left: 8px; }
+.p1 .brand i { width: 12px; height: 12px; border-radius: 4px; background: var(--accent); }
+.p1 .item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; font-weight: 600; color: var(--muted); font-size: 15px; }
+.p1 .item svg { width: 18px; height: 18px; }
+.p1 .item.on { background: var(--ink); color: #fff; }
+.p1 .rail .foot { margin-top: auto; font-size: 12px; color: var(--muted); padding-left: 8px; }
+.p1 .main { flex: 1; padding: 24px 28px 24px 4px; display: grid; grid-template-columns: 1.45fr 1fr; grid-template-rows: auto 1fr; gap: 16px; min-width: 0; }
+.p1 .head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+
+/* ===== Proposition 2 : barre du haut + focus + semaines en bandeau ===== */
+.p2 { flex-direction: column; }
+.p2 .top { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.p2 .brand { font-family: var(--display); font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.p2 .brand i { width: 12px; height: 12px; border-radius: 4px; background: var(--accent); }
+.p2 .tabs { display: flex; gap: 4px; background: var(--card); padding: 4px; border-radius: 999px; }
+.p2 .tabs span { padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--muted); }
+.p2 .tabs span.on { background: var(--ink); color: #fff; }
+.p2 .body { flex: 1; padding: 4px 32px 24px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; gap: 16px; min-height: 0; }
+.p2 .weeks { grid-column: 1 / -1; display: grid; grid-template-columns: 34px 1fr 1fr 1fr 34px; gap: 12px; align-items: center; }
+.p2 .wcard { background: var(--card); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.p2 .wcard.cur { box-shadow: inset 0 0 0 2px var(--accent); }
+.p2 .wcard .row { display: flex; justify-content: space-between; align-items: baseline; }
+.p2 .minis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.p2 .minis span { height: 34px; border-radius: 9px; display: flex; align-items: flex-end; justify-content: center; font-size: 10px; font-weight: 700; padding-bottom: 3px; }
+
+/* ===== Proposition 3 : trois colonnes, tout visible ===== */
+.p3 { flex-direction: column; }
+.p3 .top { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
+.p3 .brand { font-family: var(--display); font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.p3 .brand i { width: 12px; height: 12px; border-radius: 4px; background: var(--accent); }
+.p3 .cols { flex: 1; padding: 0 28px 24px; display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 16px; min-height: 0; }
+.p3 .colh { display: flex; justify-content: space-between; align-items: center; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Mélange doux sur ordinateur, trois mises en page</h1>
+    <p>Même thème que la version téléphone : fond clair, cartes blanches, gros chiffres arrondis, sticker bleu pour le départ. Les données sont des exemples (mercredi 14 octobre, 14h20). Sur téléphone, l'appli garde sa barre d'onglets en bas ; ces trois propositions ne concernent que l'écran large. Sur la page principale, tes horaires restent toujours visibles : arrivée, pause, départ prévu et départ réel, à compléter le lendemain si tu pars sans pointer.</p>
+  </header>
+
+  <!-- ============ 1 ============ -->
+  <section class="prop">
+    <div class="prop-head"><h2>1. Rail latéral et tableau de bord</h2><p>Les onglets passent dans une colonne à gauche. L'onglet Journée devient un tableau de bord : la journée en grand à gauche, la semaine et le solde du mois à droite. Les autres onglets gardent leur propre page.</p></div>
+    <div class="viewport"><div class="browser">
+      <div class="chrome"><i></i><i></i><i></i><span>pointage-7h.vercel.app</span></div>
+      <div class="app p1">
+        <nav class="rail">
+          <div class="brand"><i></i>Pointage 7h</div>
+          <div class="item on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Journée</div>
+          <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Semaines</div>
+          <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></svg>Mois</div>
+          <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Réglages</div>
+          <div class="foot">Synchronisé</div>
+        </nav>
+        <main class="main">
+          <div class="head"><div class="t" style="font-size:24px">Aujourd'hui, mercredi 14 octobre</div><span class="pill pos">Mois +0h43</span></div>
+          <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+            <div class="card" style="padding:26px">
+              <div class="sticker" style="right:24px;top:-12px">départ 16h05</div>
+              <div><div class="n" style="font-size:112px">1h45</div><div class="muted" style="font-size:17px;margin-top:6px">avant de pouvoir partir</div></div>
+              <div class="rib"><span class="e" style="flex:.5"></span><span class="w" style="flex:4.25"></span><span class="p" style="flex:.85"></span><span class="w" style="flex:1.25"></span><span class="f" style="flex:1.75"></span><span class="e" style="flex:2.4"></span></div>
+              <div class="scale"><span>8h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span></div>
+              <div class="tiles" style="grid-template-columns:1fr 1fr"><div class="tile"><div class="lbl">Déjà fait</div><div class="v">5h15</div></div><div class="tile"><div class="lbl">Départ pour un mois à 0</div><div class="v">15h45</div></div></div>
+            </div>
+            <div class="card">
+              <div class="cta"><span>Pointer mon départ</span><span>14h20</span></div>
+              <div class="times"><div class="tm"><span class="lbl">Arrivée</span><span class="v">8h15</span><span class="s">plage 8h00–8h30</span></div><div class="tm"><span class="lbl">Pause</span><span class="v">12h15–13h05</span><span class="s">50 min</span></div><div class="tm plan"><span class="lbl">Départ prévu</span><span class="v">16h05</span><span class="s">pour faire 7h00</span></div><div class="tm todo"><span class="lbl">Départ réel</span><span class="v">—</span><span class="s">à compléter demain</span></div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+            <div class="alert"><b>Semaine prochaine</b> : cours lundi et mardi, au lieu de jeudi et vendredi.</div>
+            <div class="card" style="gap:6px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="t" style="font-size:17px">Cette semaine</div><span class="pill pos">+0h33</span></div>
+              <div class="day"><div class="d">Lun<small>12 oct.</small></div><div class="bar"><span class="w" style="flex:4"></span><span style="flex:.8;background:var(--pause)"></span><span class="w" style="flex:3"></span><span style="flex:1"></span></div><div class="h">7h25<small style="color:var(--pos)">+0h25</small></div></div>
+              <div class="day"><div class="d">Mar<small>13 oct.</small></div><div class="bar"><span class="w" style="flex:4"></span><span style="flex:.8;background:var(--pause)"></span><span class="w" style="flex:2.9"></span><span style="flex:1"></span></div><div class="h">7h08<small style="color:var(--pos)">+0h08</small></div></div>
+              <div class="day today"><div class="d">Mer<small>14 oct.</small></div><div class="bar"><span class="w" style="flex:4"></span><span style="flex:.8;background:var(--pause)"></span><span class="w" style="flex:1.3"></span><span style="flex:2.6"></span></div><div class="h">5h15<small class="muted">en cours</small></div></div>
+              <div class="day cr"><div class="d">Jeu<small>15 oct.</small></div><div style="font-weight:700;font-size:13px;color:var(--cours)">Cours</div><div class="h">7h00</div></div>
+              <div class="day cr"><div class="d">Ven<small>16 oct.</small></div><div style="font-weight:700;font-size:13px;color:var(--cours)">Cours</div><div class="h">7h00</div></div>
+            </div>
+            <div class="card" style="gap:6px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><div class="t" style="font-size:17px">Octobre</div><span class="muted" style="font-size:13px">Tu es en positif</span></div>
+              <div style="display:flex;align-items:center;gap:16px"><div class="n" style="font-size:44px;color:var(--pos)">+0h43</div>
+                <svg class="chart" viewBox="0 0 220 60" style="flex:1" aria-hidden="true"><line x1="0" x2="220" y1="44" y2="44" stroke="#d3d9d2" stroke-dasharray="4 5"/><path d="M4 44 L34 44 L50 50 L66 34 L104 34 L130 18 L152 8 L152 44 L4 44Z" fill="#18794a" fill-opacity=".12"/><path d="M4 44 L34 44 L50 50 L66 34 L104 34 L130 18 L152 8" fill="none" stroke="#18794a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="152" cy="8" r="5" fill="#18794a" stroke="#fff" stroke-width="2"/></svg></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div></div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Tout l'essentiel du jour sur un écran, comme une vraie appli de bureau. Le rail reste clair et familier.</span></div>
+      <div><b>Sur téléphone</b><span>Le rail redevient la barre d'onglets en bas, et le tableau de bord s'empile en une colonne.</span></div>
+      <div><b>Risque</b><span>Plus d'infos d'un coup que sur téléphone : il faut garder les cartes de droite discrètes.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section class="prop">
+    <div class="prop-head"><h2>2. Barre du haut et semaines en bandeau</h2><p>Les onglets en pilule en haut. L'écran se partage entre le compte à rebours (à gauche) et le pointage avec la barre horaire (à droite). En bas, un bandeau de semaines qu'on fait défiler : la précédente, la semaine en cours, la suivante.</p></div>
+    <div class="viewport"><div class="browser">
+      <div class="chrome"><i></i><i></i><i></i><span>pointage-7h.vercel.app</span></div>
+      <div class="app p2">
+        <div class="top"><div class="brand"><i></i>Pointage 7h</div>
+          <div class="tabs"><span class="on">Journée</span><span>Semaines</span><span>Mois</span><span>Réglages</span></div>
+          <span class="pill pos">Mois +0h43</span></div>
+        <div class="body">
+          <div class="card" style="padding:30px;justify-content:center">
+            <div class="sticker" style="right:28px;top:22px">départ 16h05</div>
+            <div class="t muted" style="font-size:18px">Mercredi 14 octobre</div>
+            <div class="n" style="font-size:150px">1h45</div>
+            <div style="font-size:19px" class="muted">avant de pouvoir partir. Déjà <b style="color:var(--ink)">5h15</b> faites sur 7h00.</div>
+            <div class="alert" style="margin-top:6px"><b>Semaine prochaine</b> : cours lundi et mardi.</div>
+          </div>
+          <div class="card" style="padding:24px;gap:16px">
+            <div class="t" style="font-size:18px">Ta journée</div>
+            <div class="rib" style="height:34px"><span class="e" style="flex:.5"></span><span class="w" style="flex:4.25"></span><span class="p" style="flex:.85"></span><span class="w" style="flex:1.25"></span><span class="f" style="flex:1.75"></span><span class="e" style="flex:2.4"></span></div>
+            <div class="scale"><span>8h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span></div>
+            <div class="times"><div class="tm"><span class="lbl">Arrivée</span><span class="v">8h15</span><span class="s">plage 8h00–8h30</span></div><div class="tm"><span class="lbl">Pause</span><span class="v">12h15–13h05</span><span class="s">50 min</span></div><div class="tm plan"><span class="lbl">Départ prévu</span><span class="v">16h05</span><span class="s">pour faire 7h00</span></div><div class="tm todo"><span class="lbl">Départ réel</span><span class="v">—</span><span class="s">à compléter demain</span></div></div>
+            <div class="tiles" style="grid-template-columns:1fr 1fr"><div class="tile"><div class="lbl">Déjà fait</div><div class="v">5h15</div></div><div class="tile"><div class="lbl">Départ pour un mois à 0</div><div class="v">15h45</div></div></div>
+            <div class="cta" style="margin-top:auto"><span>Pointer mon départ</span><span>14h20</span></div>
+          </div>
+          <div class="weeks">
+            <div class="navbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></div>
+            <div class="wcard"><div class="row"><span class="t" style="font-size:14px">5 au 9 oct.</span><span class="pill pos" style="font-size:12px">+0h10</span></div>
+              <div class="minis"><span style="background:var(--accent);color:#fff">L</span><span style="background:var(--accent);color:#fff">M</span><span style="background:var(--accent);color:#fff">M</span><span style="background:var(--cours-soft);color:var(--cours)">J</span><span style="background:var(--cours-soft);color:var(--cours)">V</span></div></div>
+            <div class="wcard cur"><div class="row"><span class="t" style="font-size:14px">12 au 16 oct.</span><span class="pill pos" style="font-size:12px">+0h33</span></div>
+              <div class="minis"><span style="background:var(--accent);color:#fff">L</span><span style="background:var(--accent);color:#fff">M</span><span style="background:linear-gradient(var(--accent-soft) 30%,var(--accent) 30%);color:#fff">M</span><span style="background:var(--cours-soft);color:var(--cours)">J</span><span style="background:var(--cours-soft);color:var(--cours)">V</span></div></div>
+            <div class="wcard"><div class="row"><span class="t" style="font-size:14px">19 au 23 oct.</span><span class="pill cours" style="font-size:12px">Cours lun. mar.</span></div>
+              <div class="minis"><span style="background:var(--cours-soft);color:var(--cours)">L</span><span style="background:var(--cours-soft);color:var(--cours)">M</span><span style="background:var(--track);color:var(--muted)">M</span><span style="background:var(--track);color:var(--muted)">J</span><span style="background:var(--track);color:var(--muted)">V</span></div></div>
+            <div class="navbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Le compte à rebours est énorme, lisible même de loin quand l'onglet est ouvert sur un autre écran. Les semaines défilent sous les yeux.</span></div>
+      <div><b>Sur téléphone</b><span>Même ordre, en une colonne ; le bandeau devient le carrousel de semaines actuel.</span></div>
+      <div><b>Risque</b><span>Le solde du mois n'est qu'une pastille ici : son graphique reste dans l'onglet Mois.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section class="prop">
+    <div class="prop-head"><h2>3. Trois colonnes, tout visible</h2><p>Plus besoin d'onglets pour l'essentiel : aujourd'hui, la semaine et le mois côte à côte, chacun dans sa colonne. Les réglages s'ouvrent depuis le bouton en haut à droite.</p></div>
+    <div class="viewport"><div class="browser">
+      <div class="chrome"><i></i><i></i><i></i><span>pointage-7h.vercel.app</span></div>
+      <div class="app p3">
+        <div class="top"><div class="brand"><i></i>Pointage 7h</div><span class="muted" style="font-weight:600">Mercredi 14 octobre, 14h20</span><span class="pill" style="background:var(--card);color:var(--ink)">Réglages</span></div>
+        <div class="cols">
+          <div class="card" style="padding:24px">
+            <div class="colh"><span class="t" style="font-size:18px">Aujourd'hui</span><span class="pill cours" style="font-size:12px">Semaine pro. : cours lun. mar.</span></div>
+            <div class="sticker" style="right:22px;top:66px">départ 16h05</div>
+            <div style="margin-top:18px"><div class="n" style="font-size:96px">1h45</div><div class="muted" style="font-size:16px;margin-top:6px">avant de pouvoir partir</div></div>
+            <div class="rib"><span class="e" style="flex:.5"></span><span class="w" style="flex:4.25"></span><span class="p" style="flex:.85"></span><span class="w" style="flex:1.25"></span><span class="f" style="flex:1.75"></span><span class="e" style="flex:2.4"></span></div>
+            <div class="scale"><span>8h</span><span>12h</span><span>16h</span></div>
+            <div class="times two"><div class="tm"><span class="lbl">Arrivée</span><span class="v">8h15</span><span class="s">plage 8h00–8h30</span></div><div class="tm"><span class="lbl">Pause</span><span class="v">12h15–13h05</span><span class="s">50 min</span></div><div class="tm plan"><span class="lbl">Départ prévu</span><span class="v">16h05</span><span class="s">pour faire 7h00</span></div><div class="tm todo"><span class="lbl">Départ réel</span><span class="v">—</span><span class="s">à compléter demain</span></div></div>
+            <div class="cta" style="margin-top:auto"><span>Pointer mon départ</span><span>14h20</span></div>
+          </div>
+          <div class="card" style="gap:6px">
+            <div class="colh"><span class="t" style="font-size:18px">12 au 16 oct.</span><span style="display:flex;gap:6px"><span class="navbtn" style="background:var(--ground)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="navbtn" style="background:var(--ground)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span></span></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 6px"><span class="n" style="font-size:44px">19h48</span><span class="pill pos">+0h33</span></div>
+            <div class="day" style="grid-template-columns:48px 1fr 56px"><div class="d">Lun<small>12</small></div><div class="bar"><span class="w" style="flex:4"></span><span style="flex:.8;background:var(--pause)"></span><span class="w" style="flex:3"></span><span style="flex:1"></span></div><div class="h">7h25<small style="color:var(--pos)">+0h25</small></div></div>
+            <div class="day" style="grid-template-columns:48px 1fr 56px"><div class="d">Mar<small>13</small></div><div class="bar"><span class="w" style="flex:4"></span><span style="flex:.8;background:var(--pause)"></span><span class="w" style="flex:2.9"></span><span style="flex:1"></span></div><div class="h">7h08<small style="color:var(--pos)">+0h08</small></div></div>
+            <div class="day today" style="grid-template-columns:48px 1fr 56px"><div class="d">Mer<small>14</small></div><div class="bar"><span class="w" style="flex:4"></span><span style="flex:.8;background:var(--pause)"></span><span class="w" style="flex:1.3"></span><span style="flex:2.6"></span></div><div class="h">5h15<small class="muted">en cours</small></div></div>
+            <div class="day cr" style="grid-template-columns:48px 1fr 56px"><div class="d">Jeu<small>15</small></div><div style="font-weight:700;font-size:13px;color:var(--cours)">Cours</div><div class="h">7h00</div></div>
+            <div class="day cr" style="grid-template-columns:48px 1fr 56px"><div class="d">Ven<small>16</small></div><div style="font-weight:700;font-size:13px;color:var(--cours)">Cours</div><div class="h">7h00</div></div>
+            <div style="display:flex;gap:6px;margin-top:auto"><span class="pill" style="background:var(--ground);color:var(--ink)">Cours jeu. + ven.</span><span class="pill" style="background:var(--ground);color:var(--muted)">lun. + mar.</span></div>
+          </div>
+          <div class="card">
+            <div class="colh"><span class="t" style="font-size:18px">Octobre</span><span class="muted" style="font-size:13px">remise à 0 le 1er</span></div>
+            <div><div style="font-weight:700;color:var(--pos)">Tu es en positif</div><div class="n" style="font-size:64px;color:var(--pos)">+0h43</div><div class="muted" style="font-size:14px;margin-top:4px">à prendre avant le 31 octobre</div></div>
+            <svg class="chart" viewBox="0 0 300 120" aria-hidden="true"><line x1="30" x2="296" y1="88" y2="88" stroke="#d3d9d2"/><line x1="30" x2="296" y1="20" y2="20" stroke="#d3d9d2" stroke-dasharray="3 4"/><text x="24" y="92" text-anchor="end">0</text><text x="24" y="24" text-anchor="end">+0h45</text><path d="M34 88 L74 88 L96 98 L118 70 L170 70 L204 40 L232 22 L232 88 L34 88Z" fill="#18794a" fill-opacity=".12"/><path d="M34 88 L74 88 L96 98 L118 70 L170 70 L204 40 L232 22" fill="none" stroke="#18794a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="232" cy="22" r="5" fill="#18794a" stroke="#fff" stroke-width="2"/><text x="34" y="114">1</text><text x="118" y="114">8</text><text x="204" y="114">15</text><text x="286" y="114">22</text></svg>
+            <div class="tiles" style="grid-template-columns:1fr 1fr 1fr"><div class="tile"><div class="lbl">Travaillés</div><div class="v">8</div></div><div class="tile"><div class="lbl">Cours</div><div class="v">8</div></div><div class="tile"><div class="lbl">À remplir</div><div class="v">1</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="notes">
+      <div><b>Points forts</b><span>Aucun clic pour tout voir : jour, semaine et mois en même temps. Idéal pour un onglet laissé ouvert toute la journée.</span></div>
+      <div><b>Sur téléphone</b><span>Les trois colonnes deviennent les trois onglets actuels.</span></div>
+      <div><b>Risque</b><span>Le compte à rebours est un peu plus petit, et l'écran est plus rempli que les deux autres.</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const fit = () => document.querySelectorAll(".viewport").forEach(v => v.querySelector(".browser").style.setProperty("--s", v.clientWidth / 1280));
+  fit(); window.addEventListener("resize", fit);
+})();
+</script>

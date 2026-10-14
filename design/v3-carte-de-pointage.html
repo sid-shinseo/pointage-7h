@@ -1,0 +1,954 @@
+<title>Pointage 7h carte</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout : une appli de poche à 4 onglets (Journée, Semaines, Mois, Réglages), barre d'onglets en bas.
+   La journée est une « carte de pointage » : un grand compte à rebours et un ruban horaire 7h30 → 18h30. */
+:root {
+  --bg: #eef0ec;
+  --paper: #fbfcf9;
+  --sunk: #e3e7e1;
+  --ink: #111a16;
+  --muted: #5c6862;
+  --line: #d3d9d2;
+  --accent: #2f45c9;
+  --accent-soft: #dfe3fa;
+  --on-accent: #ffffff;
+  --pos: #18794a;
+  --pos-soft: #d7efe1;
+  --neg: #c03a1e;
+  --neg-soft: #f8dfd7;
+  --pause: #b47409;
+  --pause-soft: #f6e8cc;
+  --cours: #6a3fb8;
+  --cours-soft: #ebe2f8;
+  --conge: #b03a7a;
+  --conge-soft: #f7e0ec;
+  --ferie: #8c6a12;
+  --ferie-soft: #f1e8cf;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --tabbar: 64px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1311; --paper: #151d1a; --sunk: #1d2723; --ink: #e7ede9; --muted: #a4b3ab; --line: #2a3631;
+  --accent: #8d9cff; --accent-soft: #232a55; --on-accent: #0b0f2a;
+  --pos: #5fd394; --pos-soft: #143424; --neg: #ff8a6b; --neg-soft: #3d1c14;
+  --pause: #f0b44a; --pause-soft: #3a2b10; --cours: #c3a4ff; --cours-soft: #2c2145;
+  --conge: #f29ac8; --conge-soft: #3e1d30; --ferie: #e6c25e; --ferie-soft: #352c12;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d1311; --paper: #151d1a; --sunk: #1d2723; --ink: #e7ede9; --muted: #a4b3ab; --line: #2a3631;
+  --accent: #8d9cff; --accent-soft: #232a55; --on-accent: #0b0f2a;
+  --pos: #5fd394; --pos-soft: #143424; --neg: #ff8a6b; --neg-soft: #3d1c14;
+  --pause: #f0b44a; --pause-soft: #3a2b10; --cours: #c3a4ff; --cours-soft: #2c2145;
+  --conge: #f29ac8; --conge-soft: #3e1d30; --ferie: #e6c25e; --ferie-soft: #352c12;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+::selection { background: var(--accent-soft); color: var(--ink); }
+html { scrollbar-color: var(--line) transparent; }
+input, textarea { caret-color: var(--accent); }
+input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+.btn, .round, .tab, .drow, .monthpill { transition: transform 160ms var(--ease-out), background-color 160ms ease, border-color 160ms ease; -webkit-tap-highlight-color: transparent; }
+.btn:active, .round:active, .tab:active, .drow:active, .monthpill:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.6; cursor: progress; transform: none; }
+.round { display: inline-grid; place-items: center; padding: 0; }
+.round svg { width: 18px; height: 18px; }
+@keyframes fill-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.ribbon.reveal .seg { animation: fill-in 700ms var(--ease-out) both; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: 0.86rem; font-weight: 600; color: var(--muted); }
+.pos { color: var(--pos); } .neg { color: var(--neg); }
+
+.app { max-width: 600px; margin: 0 auto; padding-block: 16px calc(var(--tabbar) + 28px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.topline { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+.brand { font-family: var(--f-display); font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.brand i { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); display: inline-block; }
+.sync { font-size: 0.75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.sync b { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.sync.on b { background: var(--pos); }
+
+.view { display: flex; flex-direction: column; gap: 14px; }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.spread { justify-content: space-between; }
+
+.btn { border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 8px 13px; font-size: 0.88rem; font-weight: 500; }
+@media (hover: hover) and (pointer: fine) { .btn:hover { border-color: var(--ink); } .btn.ghost:hover { color: var(--ink); border-color: var(--line); } .drow:hover, tr[data-k]:hover td { background: var(--sunk); } }
+.btn.sm { padding: 5px 10px; font-size: 0.8rem; border-radius: 10px; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.danger { color: var(--neg); }
+.btn.big { width: 100%; padding: 15px 18px; font-size: 1.05rem; font-weight: 600; border-radius: 16px; background: var(--accent); color: var(--on-accent); border-color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+.btn.big:hover { filter: brightness(1.06); }
+.round { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); font-size: 1.1rem; line-height: 1; }
+select { border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 6px 10px; font-size: 0.86rem; }
+input[type="time"], input[type="text"], input[type="email"], input[type="password"] {
+  border: 1px solid var(--line); background: var(--sunk); border-radius: 10px; padding: 8px 10px; min-width: 0; width: 100%; }
+input[type="time"] { font-family: var(--f-mono); font-size: 0.98rem; }
+
+.chip { display: inline-flex; align-items: center; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.chip.work { background: var(--accent-soft); color: var(--accent); }
+.chip.cours { background: var(--cours-soft); color: var(--cours); }
+.chip.conge { background: var(--conge-soft); color: var(--conge); }
+.chip.ferie { background: var(--ferie-soft); color: var(--ferie); }
+.chip.ferie-w { color: var(--ferie); box-shadow: inset 0 0 0 1px var(--ferie); }
+.chip.missing { color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+.chip.pos { background: var(--pos-soft); color: var(--pos); }
+.chip.neg { background: var(--neg-soft); color: var(--neg); }
+
+/* ---------- Journée ---------- */
+.dayhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.dayhead h2 { font-size: 1.15rem; font-weight: 700; }
+.monthpill { border: 0; border-radius: 999px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600; display: inline-flex; gap: 6px; align-items: baseline; }
+.monthpill.pos { background: var(--pos-soft); color: var(--pos); }
+.monthpill.neg { background: var(--neg-soft); color: var(--neg); }
+.monthpill span { font-weight: 500; opacity: 0.8; }
+
+.hero { display: flex; flex-direction: column; gap: 4px; padding-block: 6px 2px; }
+.count { font-family: var(--f-display); font-weight: 800; font-size: clamp(4.4rem, 22vw, 7rem); line-height: 0.92; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.count small { font-size: 0.42em; letter-spacing: -0.02em; font-weight: 700; color: var(--muted); margin-left: 4px; }
+.count.pos { color: var(--pos); }
+.hero .sub { font-size: 1.05rem; }
+.hero .sub b { font-family: var(--f-mono); }
+
+.ribbon { position: relative; height: 34px; border-radius: 10px; background: var(--sunk); overflow: hidden; }
+.ribbon.sm { height: 14px; border-radius: 5px; }
+.seg { position: absolute; top: 0; bottom: 0; }
+.seg.w { background: var(--accent); }
+.seg.p { background: repeating-linear-gradient(135deg, var(--pause) 0 4px, var(--pause-soft) 4px 8px); }
+.seg.f { background: repeating-linear-gradient(90deg, var(--accent-soft) 0 6px, transparent 6px 9px); box-shadow: inset 0 0 0 1px var(--accent); }
+.seg.c { background: var(--cours-soft); }
+.seg.k { background: var(--conge-soft); }
+.seg.h { background: var(--ferie-soft); }
+.tick { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed var(--muted); opacity: 0.6; }
+.now { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); }
+.goal { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--pos); }
+.scale { position: relative; height: 16px; font-family: var(--f-mono); font-size: 0.66rem; color: var(--muted); }
+.scale span { position: absolute; transform: translateX(-50%); }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.74rem; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { background: var(--sunk); border-radius: 14px; padding: 11px 13px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tile .v { font-family: var(--f-mono); font-size: 1.35rem; font-weight: 700; }
+.tile .d { font-size: 0.76rem; color: var(--muted); }
+
+.punch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.slot { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.slot label { font-size: 0.74rem; color: var(--muted); font-weight: 600; }
+.slot .hint { font-size: 0.74rem; color: var(--muted); }
+.alerts { display: flex; flex-direction: column; gap: 6px; }
+.alert { font-size: 0.85rem; padding: 8px 12px; border-radius: 10px; background: var(--pause-soft); color: var(--pause); }
+.alert.info { background: var(--sunk); color: var(--muted); }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.86rem; }
+
+/* ---------- Semaines (carrousel) ---------- */
+.weeknav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.weeknav h2 { font-size: 1.2rem; text-align: center; flex: 1; }
+.carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; gap: 12px; scrollbar-width: none; overscroll-behavior-x: contain; }
+.carousel::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; }
+.wsum { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.wsum .big { font-family: var(--f-display); font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; }
+.drow { display: grid; grid-template-columns: 54px minmax(0, 1fr) 74px; gap: 10px; align-items: center; padding: 10px 6px; border-radius: 12px; border: 0; background: transparent; text-align: left; width: 100%; }
+.drow.today { background: var(--accent-soft); }
+.drow .dn { font-family: var(--f-display); font-weight: 700; font-size: 1rem; line-height: 1.1; }
+.drow .dd { font-size: 0.72rem; color: var(--muted); }
+.drow .mid { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.drow .right { text-align: right; font-family: var(--f-mono); font-size: 0.9rem; font-weight: 700; line-height: 1.2; }
+.drow .right small { display: block; font-size: 0.74rem; font-weight: 500; }
+.dlist { display: flex; flex-direction: column; gap: 2px; }
+.dots { display: flex; justify-content: center; gap: 6px; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); width: 18px; border-radius: 4px; }
+
+/* ---------- Mois ---------- */
+.balance { display: flex; flex-direction: column; gap: 2px; }
+.balance .verdict { font-family: var(--f-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; }
+.balance .v { font-family: var(--f-display); font-weight: 800; font-size: clamp(3.6rem, 17vw, 5.4rem); line-height: 0.95; letter-spacing: -0.05em; }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--f-mono); font-size: 10px; fill: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.stat { background: var(--sunk); border-radius: 12px; padding: 9px 10px; }
+.stat b { display: block; font-family: var(--f-mono); font-size: 1.15rem; }
+.stat span { font-size: 0.72rem; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th { text-align: left; font-size: 0.78rem; color: var(--muted); padding: 6px 6px; border-bottom: 1px solid var(--line); font-weight: 600; }
+td { padding: 8px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td.r, th.r { text-align: right; }
+tr[data-k] { cursor: pointer; }
+.note { font-size: 0.82rem; color: var(--muted); }
+
+/* ---------- Réglages ---------- */
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field > label { font-size: 0.82rem; color: var(--muted); }
+.checks { display: flex; flex-direction: column; gap: 7px; }
+.checks label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.checks .d { margin-left: auto; font-size: 0.8rem; color: var(--muted); text-align: right; }
+textarea { width: 100%; min-height: 100px; border: 1px solid var(--line); background: var(--sunk); border-radius: 10px; padding: 10px; font-family: var(--f-mono); font-size: 0.76rem; color: var(--ink); }
+
+/* ---------- Barre d'onglets ---------- */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--paper); border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+.tabbar .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); height: var(--tabbar); }
+.tab { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+.tab svg { width: 22px; height: 22px; }
+.tab[aria-current="page"] { color: var(--accent); }
+
+/* ---------- Connexion ---------- */
+.gate { min-height: 100%; display: flex; align-items: center; justify-content: center; padding-block: 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.gate form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
+.gate h1 { font-size: 2rem; font-weight: 800; }
+.gate .err { color: var(--neg); font-size: 0.85rem; min-height: 1.2em; }
+
+@media (max-width: 480px) {
+  .punch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel { padding: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { .carousel { scroll-behavior: auto; } .ribbon.reveal .seg { animation: none; } .btn:active, .round:active, .tab:active, .drow:active, .monthpill:active { transform: none; } }
+</style>
+
+<div class="gate" id="gate" hidden>
+  <form id="loginForm" autocomplete="on">
+    <div class="brand"><i></i>Pointage 7h</div>
+    <h1>Connexion</h1>
+    <p class="muted" style="margin:0">Tes heures sont privées. Connecte-toi pour les voir.</p>
+    <div class="field"><label for="lEmail">E-mail</label><input type="email" id="lEmail" autocomplete="username" required></div>
+    <div class="field"><label for="lPass">Mot de passe</label><input type="password" id="lPass" autocomplete="current-password" minlength="8" required></div>
+    <button class="btn big" type="submit" id="lSubmit"><span>Se connecter</span></button>
+    <button class="btn ghost sm" type="button" id="lSignup">Première fois ? Créer mon compte</button>
+    <div class="err" id="lErr" role="alert"></div>
+  </form>
+</div>
+
+<div id="appRoot">
+  <div class="app">
+    <div class="topline">
+      <div class="brand"><i></i>Pointage 7h</div>
+      <div class="sync" id="sync"><b></b><span>Sur cet appareil</span></div>
+    </div>
+
+    <main class="view" id="v-day"></main>
+
+    <main class="view" id="v-weeks" hidden>
+      <div class="weeknav">
+        <button class="round" id="wPrev" aria-label="Semaine précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <h2 id="wTitle"></h2>
+        <button class="round" id="wNext" aria-label="Semaine suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="carousel" id="carousel" tabindex="0" aria-label="Semaines, fais glisser pour changer"></div>
+      <div class="row spread">
+        <button class="btn ghost sm" id="wToday">Revenir à cette semaine</button>
+        <span class="note">Glisse vers la gauche ou la droite</span>
+      </div>
+    </main>
+
+    <main class="view" id="v-month" hidden>
+      <section class="panel">
+        <div class="row spread">
+          <button class="round" id="mPrev" aria-label="Mois précédent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <h2 id="mTitle" style="font-size:1.2rem"></h2>
+          <button class="round" id="mNext" aria-label="Mois suivant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="balance" id="mBalance"></div>
+        <div id="mChart"></div>
+        <div class="stats" id="mStats"></div>
+      </section>
+      <section class="panel">
+        <div class="field">
+          <label for="mAdj">Ajustement du mois (ex. solde repris de ton ancien calcul, format +1h30 ou -0h20)</label>
+          <input type="text" id="mAdj" placeholder="+0h00" style="max-width:140px">
+        </div>
+        <div class="note" id="mHol"></div>
+        <div class="tbl-wrap"><table id="mTable"></table></div>
+      </section>
+    </main>
+
+    <main class="view" id="v-settings" hidden>
+      <section class="panel" id="accountPanel" hidden>
+        <h2>Compte</h2>
+        <div class="row spread"><span id="accEmail" class="mono" style="font-size:0.88rem"></span><button class="btn sm" id="logout">Se déconnecter</button></div>
+      </section>
+      <section class="panel">
+        <h2>Horaires</h2>
+        <div class="grid2">
+          <div class="field"><label for="sTarget">Heures par jour</label><input type="text" id="sTarget"></div>
+          <div class="field"><label for="sArrMin">Arrivée au plus tôt</label><input type="time" id="sArrMin"></div>
+          <div class="field"><label for="sArrMax">Arrivée au plus tard</label><input type="time" id="sArrMax"></div>
+          <div class="field"><label for="sDepMin">Départ au plus tôt</label><input type="time" id="sDepMin"></div>
+          <div class="field"><label for="sPS">Pause midi : début</label><input type="time" id="sPS"></div>
+          <div class="field"><label for="sPE">Pause midi : fin</label><input type="time" id="sPE"></div>
+        </div>
+        <div class="checks"><label><input type="checkbox" id="sCBM"> Compter le temps passé avant l'heure d'arrivée au plus tôt</label></div>
+      </section>
+      <section class="panel">
+        <h2>Jours de cours par défaut</h2>
+        <div class="row" id="sCours"></div>
+        <span class="note">Chaque semaine reste modifiable dans l'onglet Semaines.</span>
+      </section>
+      <section class="panel">
+        <h2>Jours fériés chômés</h2>
+        <span class="note">Le 1er mai est le seul férié chômé obligatoire. Pour les autres, ça dépend de ta convention ou de ton entreprise : décoche ceux où tu travailles. Un férié chômé compte comme une journée de 7h.</span>
+        <div class="checks" id="sFeries"></div>
+      </section>
+      <section class="panel">
+        <h2>Sauvegarde</h2>
+        <span class="note">Copie tes données pour les garder ou les transférer, puis colle-les ici pour les importer.</span>
+        <textarea id="ioText" spellcheck="false" placeholder="Colle ici une sauvegarde pour l'importer"></textarea>
+        <div class="row">
+          <button class="btn sm" id="ioExport">Copier mes données</button>
+          <button class="btn sm" id="ioImport">Importer le texte collé</button>
+          <span class="note" id="ioMsg"></span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tabbar" aria-label="Navigation">
+    <div class="in">
+      <button class="tab" data-tab="day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Journée</button>
+      <button class="tab" data-tab="weeks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Semaines</button>
+      <button class="tab" data-tab="month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></svg>Mois</button>
+      <button class="tab" data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Réglages</button>
+    </div>
+  </nav>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================= Temps ================= */
+const pad = n => String(n).padStart(2, "0");
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+const ymOf = k => k.slice(0, 7);
+const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+const mondayOf = d => { const r = new Date(d.getFullYear(), d.getMonth(), d.getDate()); return addDays(r, -((r.getDay() + 6) % 7)); };
+const toMin = s => { if (!s) return null; const m = /^(\d{1,2})[:h](\d{2})$/.exec(String(s).trim()); return m ? +m[1] * 60 + +m[2] : null; };
+const toHHMM = m => m == null ? "" : `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`;
+const clock = m => m == null ? "—" : `${Math.floor(m / 60)}h${pad(Math.round(m) % 60)}`;
+const dur = m => { m = Math.round(Math.abs(m)); return `${Math.floor(m / 60)}h${pad(m % 60)}`; };
+const sdur = m => (Math.round(m) >= 0 ? "+" : "−") + dur(m);
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const parseDur = s => {
+  s = String(s ?? "").trim().replace(/\s/g, ""); if (!s) return 0;
+  const m = /^([+\-−]?)(\d{1,3})(?:[h:](\d{0,2}))?$/.exec(s); if (!m) return null;
+  const v = +m[2] * 60 + (m[3] ? +m[3] : 0); return (m[1] === "-" || m[1] === "−") ? -v : v;
+};
+const DAY = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const DAY3 = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+const MON3 = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const longDate = k => { const d = parseKey(k); return `${cap(DAY[d.getDay()])} ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ================= Fériés ================= */
+const HOLIDAYS = [["jan1", "Jour de l'an"], ["paques", "Lundi de Pâques"], ["mai1", "Fête du Travail"], ["mai8", "Victoire 1945"],
+  ["ascension", "Ascension"], ["pentecote", "Lundi de Pentecôte"], ["jul14", "Fête nationale"], ["aou15", "Assomption"],
+  ["nov1", "Toussaint"], ["nov11", "Armistice 1918"], ["dec25", "Noël"]];
+const HOL_NAME = Object.fromEntries(HOLIDAYS);
+function easter(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25),
+    g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4,
+    l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * m + 114;
+  return new Date(y, Math.floor(n / 31) - 1, (n % 31) + 1);
+}
+const holCache = {};
+function holidaysOf(y) {
+  if (holCache[y]) return holCache[y];
+  const e = easter(y), map = {}, put = (d, id) => { map[keyOf(d)] = id; };
+  put(new Date(y, 0, 1), "jan1"); put(addDays(e, 1), "paques"); put(new Date(y, 4, 1), "mai1"); put(new Date(y, 4, 8), "mai8");
+  put(addDays(e, 39), "ascension"); put(addDays(e, 50), "pentecote"); put(new Date(y, 6, 14), "jul14"); put(new Date(y, 7, 15), "aou15");
+  put(new Date(y, 10, 1), "nov1"); put(new Date(y, 10, 11), "nov11"); put(new Date(y, 11, 25), "dec25");
+  return (holCache[y] = map);
+}
+const holidayOf = k => holidaysOf(+k.slice(0, 4))[k] || null;
+
+/* ================= État ================= */
+const DEFAULT_SETTINGS = {
+  target: 420, arrMin: "08:00", arrMax: "08:30", depMin: "15:45", pauseStart: "12:15", pauseEnd: "13:00",
+  countBeforeMin: false, coursDays: [4, 5],
+  ferieChome: { jan1: true, paques: true, mai1: true, mai8: true, ascension: true, pentecote: false, jul14: true, aou15: true, nov1: true, nov11: true, dec25: true }
+};
+const LS_DATA = "pointage7h.v1", LS_TAB = "pointage7h.tab";
+const state = { settings: structuredClone(DEFAULT_SETTINGS), months: {} };
+const S = () => state.settings;
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+function loadLocal() {
+  try { const p = JSON.parse(lsGet(LS_DATA) || "null"); if (p) { state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...(p.settings || {}) }; state.months = p.months || {}; } } catch (e) {}
+}
+const saveLocal = () => lsSet(LS_DATA, JSON.stringify(state));
+const monthObj = ym => (state.months[ym] ||= { days: {}, adj: 0 });
+const getRec = k => (state.months[ymOf(k)]?.days || {})[k] || null;
+
+let todayKey = keyOf(new Date());
+let selKey = todayKey;
+let viewYM = ymOf(todayKey);
+let tab = ["day", "weeks", "month", "settings"].includes(lsGet(LS_TAB)) ? lsGet(LS_TAB) : "day";
+
+/* ================= Calculs ================= */
+function defaultType(k) {
+  const w = parseKey(k).getDay();
+  if (w === 0 || w === 6) return "weekend";
+  const h = holidayOf(k);
+  if (h && S().ferieChome[h] !== false) return "ferie";
+  return S().coursDays.includes(w) ? "cours" : "work";
+}
+function typeOf(k) {
+  const w = parseKey(k).getDay();
+  if (w === 0 || w === 6) return "weekend";
+  return getRec(k)?.type || defaultType(k);
+}
+function dayInfo(k) {
+  const s = S(), rec = getRec(k) || {}, type = typeOf(k), target = s.target;
+  const isToday = k === todayKey, isPast = k < todayKey, now = nowMin();
+  const i = { k, type, rec, isToday, isPast, worked: 0, diff: 0, status: "neutral", warnings: [], holiday: holidayOf(k) };
+  if (type === "weekend") { i.status = "weekend"; return i; }
+  if (type !== "work") { i.status = isPast || isToday ? "credited" : "planned"; i.worked = target; return i; }
+
+  const arrMin = toMin(s.arrMin), arrMax = toMin(s.arrMax), depMin = toMin(s.depMin);
+  const defPS = toMin(s.pauseStart), defPE = toMin(s.pauseEnd), defDur = Math.max(0, defPE - defPS);
+  const inM = toMin(rec.in), psM = toMin(rec.ps), peM = toMin(rec.pe), outM = toMin(rec.out);
+  const startOf = a => s.countBeforeMin ? a : Math.max(a, arrMin);
+  const pauseIv = running => psM != null ? [psM, peM ?? (running ? Math.max(psM + defDur, now) : psM + defDur)] : [defPS, peM ?? defPE];
+  const forecastFor = (start, running) => {
+    const [pS, pE] = pauseIv(running), pause = Math.max(0, pE - Math.max(pS, start)), raw = start + target + pause;
+    return { raw, pause, depart: Math.max(raw, depMin), clamped: raw < depMin, pS, pE };
+  };
+  i.arrMin = arrMin; i.depMin = depMin;
+  if (inM == null) {
+    i.status = isPast ? "missing" : isToday ? "todo" : "future";
+    i.start = startOf(isToday ? Math.max(now, arrMin) : arrMin);
+    i.forecast = forecastFor(i.start, false);
+    return i;
+  }
+  const start = startOf(inM), running = isToday && outM == null;
+  const end = outM ?? (running ? Math.max(now, start) : null);
+  if (inM > arrMax) i.warnings.push(`Arrivée à ${clock(inM)}, après la limite de ${clock(arrMax)}.`);
+  if (!s.countBeforeMin && inM < arrMin) i.warnings.push(`Arrivée avant ${clock(arrMin)} : le temps compte à partir de ${clock(arrMin)}.`);
+  if (outM != null && outM < depMin) i.warnings.push(`Départ à ${clock(outM)}, avant le minimum de ${clock(depMin)}.`);
+  if (psM != null && peM != null && peM < psM) i.warnings.push("La reprise est avant le début de la pause.");
+  if (outM != null && outM < inM) i.warnings.push("Le départ est avant l'arrivée.");
+  i.start = start; i.end = end;
+  i.forecast = forecastFor(start, running);
+  if (end == null) { i.status = "incomplete"; return i; }
+  const [pS, pE] = pauseIv(running);
+  i.pauseIv = [pS, pE];
+  const pauseUsed = Math.max(0, Math.min(pE, end) - Math.max(pS, start));
+  i.worked = Math.max(0, end - start - pauseUsed);
+  i.onPause = running && psM != null && peM == null && now >= psM;
+  i.pauseAssumed = psM == null && peM == null && pauseUsed > 0;
+  if (running) i.status = i.onPause ? "pause" : "running";
+  else { i.status = "done"; i.diff = i.worked - target; }
+  return i;
+}
+function monthDays(ym) {
+  const [y, m] = ym.split("-").map(Number), out = [];
+  for (let d = new Date(y, m - 1, 1); d.getMonth() === m - 1; d = addDays(d, 1)) out.push(keyOf(d));
+  return out;
+}
+function monthSummary(ym, excludeKey) {
+  const r = { bal: 0, adj: state.months[ym]?.adj || 0, work: 0, cours: 0, conge: 0, ferie: 0, missing: 0, rows: [], series: [] };
+  let cum = r.adj;
+  for (const k of monthDays(ym)) {
+    if (k > todayKey) break;
+    const i = dayInfo(k);
+    if (i.type === "weekend") continue;
+    if (k !== excludeKey && i.status === "done") { r.bal += i.diff; r.work++; cum += i.diff; }
+    if (i.type === "cours") r.cours++;
+    if (i.type === "conge") r.conge++;
+    if (i.type === "ferie") r.ferie++;
+    if (i.status === "missing" || i.status === "incomplete") r.missing++;
+    r.rows.push(i);
+    r.series.push({ k, cum });
+  }
+  r.total = r.bal + r.adj;
+  return r;
+}
+
+/* ================= Persistance =================
+   3 modes : compte Claude (artefact), Supabase (site en ligne), cet appareil. */
+let backend = null;          // { label, write(name, data) }
+const pendingTimers = {}, inflight = {};
+function persist(name, getData) {
+  saveLocal();
+  if (!backend) return;
+  clearTimeout(pendingTimers[name]);
+  inflight[name] = true;
+  pendingTimers[name] = setTimeout(() => {
+    const data = structuredClone(getData());
+    backend.chain = (backend.chain || Promise.resolve())
+      .then(() => backend.write(name, data))
+      .then(() => { inflight[name] = false; setSync(true, backend.label); })
+      .catch(() => { inflight[name] = false; setSync(false, "Hors ligne, gardé sur cet appareil"); });
+  }, 450);
+}
+const persistMonth = ym => persist("m-" + ym, () => monthObj(ym));
+const persistSettings = () => persist("settings", () => state.settings);
+function applyDoc(name, data) {
+  if (inflight[name]) return;
+  if (name === "settings") { state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...structuredClone(data) }; fillSettings(); }
+  else if (name.startsWith("m-")) state.months[name.slice(2)] = structuredClone(data);
+  saveLocal(); render();
+}
+function setSync(on, text) { const el = $("sync"); el.classList.toggle("on", on); el.querySelector("span").textContent = text; }
+
+/* --- Compte Claude (dans l'artefact) --- */
+async function connectClaude() {
+  try {
+    if (!window.claude?.use) return;
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db || !user) return;
+    const id = await user.id(); if (!id) return;
+    const col = db.collection("data/users/" + id);
+    backend = { label: "Synchronisé sur ton compte", write: (name, data) => col.doc(name).set(data) };
+    setSync(true, backend.label);
+    const seen = new Set();
+    const watch = name => {
+      if (seen.has(name)) return; seen.add(name);
+      col.doc(name).onSnapshot(snap => {
+        if (snap.metadata?.hasPendingWrites) return;
+        if (snap.exists) applyDoc(name, snap.data());
+        else if (name === "settings" ? lsGet(LS_DATA) : Object.keys(state.months[name.slice(2)]?.days || {}).length) persist(name, () => name === "settings" ? state.settings : monthObj(name.slice(2)));
+      }, () => {});
+    };
+    backend.watchMonth = ym => watch("m-" + ym);
+    watch("settings");
+    new Set([ymOf(todayKey), viewYM, ...Object.keys(state.months)]).forEach(ym => watch("m-" + ym));
+  } catch (e) {}
+}
+
+/* --- Supabase (site en ligne) --- */
+const SB_SRC = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+let sb = null, sbUser = null;
+function loadScript(src) { return new Promise((ok, ko) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+async function bootSupabase(cfg) {
+  $("appRoot").hidden = true; $("gate").hidden = false;
+  try { await loadScript(SB_SRC); } catch (e) { $("lErr").textContent = "Impossible de charger le module de connexion. Vérifie ta connexion internet."; return; }
+  sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true } });
+  const { data } = await sb.auth.getSession();
+  if (data.session) await startSupabase(data.session.user);
+  sb.auth.onAuthStateChange((ev, session) => { if (ev === "SIGNED_OUT") location.reload(); });
+}
+async function startSupabase(user) {
+  sbUser = user;
+  backend = {
+    label: "Synchronisé",
+    write: async (name, data) => {
+      const { error } = await sb.from("pointage_docs").upsert({ user_id: user.id, name, data, updated_at: new Date().toISOString() });
+      if (error) throw error;
+    }
+  };
+  $("gate").hidden = true; $("appRoot").hidden = false;
+  $("accountPanel").hidden = false; $("accEmail").textContent = user.email || "";
+  loadLocal(); fillSettings(); render();
+  await pullSupabase();
+  sb.channel("pointage").on("postgres_changes", { event: "*", schema: "public", table: "pointage_docs", filter: `user_id=eq.${user.id}` },
+    p => { if (p.new?.name) applyDoc(p.new.name, p.new.data); }).subscribe();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) pullSupabase(); });
+}
+async function pullSupabase() {
+  const { data, error } = await sb.from("pointage_docs").select("name,data");
+  if (error) { setSync(false, "Hors ligne, gardé sur cet appareil"); return; }
+  const remote = new Set(data.map(r => r.name));
+  data.forEach(r => applyDoc(r.name, r.data));
+  // Premier envoi des données déjà présentes sur l'appareil
+  if (!remote.has("settings") && lsGet(LS_DATA)) persistSettings();
+  Object.keys(state.months).forEach(ym => { if (!remote.has("m-" + ym) && Object.keys(state.months[ym].days || {}).length) persistMonth(ym); });
+  setSync(true, backend.label);
+}
+function bindLogin() {
+  let busy = false;
+  const go = async signup => {
+    if (busy || !sb) return;
+    const email = $("lEmail").value.trim(), password = $("lPass").value;
+    if (!email || password.length < 8) { $("lErr").textContent = "Entre ton e-mail et un mot de passe d'au moins 8 caractères."; return; }
+    busy = true; $("lErr").textContent = "";
+    const btn = signup ? $("lSignup") : $("lSubmit"), label = btn.innerHTML;
+    btn.disabled = true; btn.textContent = signup ? "Création du compte…" : "Connexion…";
+    const { data, error } = signup ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email, password });
+    busy = false; btn.disabled = false; btn.innerHTML = label;
+    if (error) { $("lErr").textContent = /invalid/i.test(error.message) ? "E-mail ou mot de passe incorrect." : /not allowed|disabled/i.test(error.message) ? "La création de compte est désactivée." : error.message; return; }
+    if (data.session) startSupabase(data.session.user);
+    else $("lErr").textContent = "Compte créé. Confirme ton e-mail avec le lien reçu, puis connecte-toi.";
+  };
+  $("loginForm").addEventListener("submit", e => { e.preventDefault(); go(false); });
+  $("lSignup").addEventListener("click", () => go(true));
+  $("logout").addEventListener("click", async () => { lsDel(LS_DATA); await sb?.auth.signOut(); location.reload(); });
+}
+
+/* ================= Mutations ================= */
+function setField(k, f, v) {
+  const ym = ymOf(k), m = monthObj(ym), rec = (m.days[k] ||= {});
+  if (v === "" || v == null) delete rec[f]; else rec[f] = v;
+  if (!Object.keys(rec).length) delete m.days[k];
+  persistMonth(ym); render();
+}
+const setType = (k, t) => setField(k, "type", t === defaultType(k) ? "" : t);
+function applyPreset(monday, dows) {
+  for (let n = 0; n < 5; n++) {
+    const d = addDays(monday, n), k = keyOf(d);
+    if (defaultType(k) === "ferie" || typeOf(k) === "conge") continue;
+    const want = dows.includes(d.getDay()) ? "cours" : "work";
+    const ym = ymOf(k), m = monthObj(ym), rec = (m.days[k] ||= {});
+    if (want === defaultType(k)) delete rec.type; else rec.type = want;
+    if (!Object.keys(rec).length) delete m.days[k];
+    persistMonth(ym);
+  }
+  render();
+}
+
+/* ================= Rendu ================= */
+const $ = id => document.getElementById(id);
+const TYPE_LABEL = { work: "Travail", cours: "Cours", conge: "Congé", ferie: "Férié chômé", weekend: "Week-end" };
+function chipFor(i) {
+  if (i.type === "work") {
+    if (i.holiday) return `<span class="chip ferie-w">Férié travaillé</span>`;
+    if (i.status === "missing" || i.status === "incomplete") return `<span class="chip missing">À remplir</span>`;
+    return `<span class="chip work">Travail</span>`;
+  }
+  return `<span class="chip ${i.type}">${TYPE_LABEL[i.type]}</span>`;
+}
+
+/* Ruban horaire 7h30 → 18h30 */
+const R0 = 450, R1 = 1110;
+let ribbonShown = false;
+const pct = m => `${((Math.min(Math.max(m, R0), R1) - R0) / (R1 - R0) * 100).toFixed(2)}%`;
+const segW = (a, b) => `${(Math.max(0, Math.min(b, R1) - Math.max(a, R0)) / (R1 - R0) * 100).toFixed(2)}%`;
+function ribbon(i, small) {
+  let h = "";
+  const seg = (cls, a, b) => { if (b > a) h += `<span class="seg ${cls}" style="left:${pct(a)};width:${segW(a, b)}"></span>`; };
+  if (i.type !== "work") {
+    const cls = { cours: "c", conge: "k", ferie: "h" }[i.type];
+    if (cls) seg(cls, toMin(S().arrMin), toMin(S().arrMin) + S().target + 45);
+  } else if (i.end != null && i.start != null) {
+    const [pS, pE] = i.pauseIv || [0, 0], s = i.start, e = i.end;
+    const pa = Math.max(pS, s), pb = Math.min(pE, e);
+    if (pb > pa) { seg("w", s, pa); seg("p", pa, pb); seg("w", pb, e); } else seg("w", s, e);
+    if (i.status === "running" || i.status === "pause") {
+      const f = i.forecast;
+      if (f.depart > e) {
+        const fpa = Math.max(f.pS, e), fpb = f.pE;
+        if (fpb > fpa && fpa < f.depart) { seg("p", fpa, fpb); seg("f", Math.max(e, fpb), f.depart); seg("f", e, fpa); }
+        else seg("f", e, f.depart);
+      }
+    }
+  } else if (i.forecast && !small) {
+    const f = i.forecast;
+    seg("f", i.start, f.pS); seg("p", Math.max(f.pS, i.start), f.pE); seg("f", Math.max(f.pE, i.start), f.depart);
+  }
+  if (!small) {
+    h += `<span class="tick" style="left:${pct(i.depMin ?? toMin(S().depMin))}"></span>`;
+    if (i.isToday) h += `<span class="now" style="left:${pct(nowMin())}"></span>`;
+    if (i.type === "work" && i.forecast && i.status !== "done") h += `<span class="goal" style="left:calc(${pct(i.forecast.depart)} - 1px)"></span>`;
+  }
+  const rv = !small && !ribbonShown ? " reveal" : "";
+  if (!small) ribbonShown = true;
+  return `<div class="ribbon${small ? " sm" : ""}${rv}">${h}</div>` + (small ? "" :
+    `<div class="scale">${[480, 600, 720, 840, 960, 1080].map(m => `<span style="left:${pct(m)}">${m / 60}h</span>`).join("")}</div>`);
+}
+
+function renderDay() {
+  const i = dayInfo(selKey), s = S(), el = $("v-day"), now = nowMin();
+  const ms = monthSummary(ymOf(todayKey));
+  const balBefore = monthSummary(ymOf(selKey), selKey).total;
+  const typeOpts = ["work", "cours", "conge"].concat(i.holiday ? ["ferie"] : []);
+
+  let hero = "", extra = "";
+  if (i.type === "weekend") {
+    hero = `<div class="hero"><div class="count">0h00</div><div class="sub muted">C'est le week-end, pas de quota.</div></div>`;
+  } else if (i.type !== "work") {
+    const why = { cours: "Journée de cours", conge: "Congé", ferie: `Férié chômé (${HOL_NAME[i.holiday] || ""})` }[i.type];
+    hero = `<div class="hero"><div class="count">${dur(s.target)}</div><div class="sub">${why}, comptée comme une journée complète. Rien à pointer.</div></div>${ribbon(i)}`;
+  } else {
+    const f = i.forecast;
+    const rawSolde = (i.start ?? 0) + s.target - balBefore + (f?.pause ?? 0);
+    const dSolde = f ? Math.max(rawSolde, toMin(s.depMin)) : null;
+    const soldeNote = balBefore === 0 ? "Mois à 0" : `Mois ${sdur(balBefore)}`;
+    const soldeTile = f ? `<div class="tile"><span class="eyebrow">Départ pour un mois à 0</span><span class="v">${clock(dSolde)}</span><span class="d">${soldeNote}${rawSolde < toMin(s.depMin) ? `, il restera ${sdur(toMin(s.depMin) - rawSolde)}` : balBefore > 0 ? ", tu peux partir plus tôt" : balBefore < 0 ? ", pour rattraper" : ""}</span></div>` : "";
+    if (i.status === "running" || i.status === "pause") {
+      const rem = f.depart - now;
+      if (rem > 0) {
+        hero = `<div class="hero"><div class="count">${dur(rem)}</div>
+          <div class="sub">${i.onPause ? `restantes. En pause depuis ${clock(toMin(i.rec.ps))}, départ à <b>${clock(f.depart)}</b>` : `restantes avant de pouvoir partir à <b>${clock(f.depart)}</b>`}${f.clamped ? ` <span class="muted">(pas avant ${clock(toMin(s.depMin))})</span>` : ""}</div></div>`;
+      } else {
+        hero = `<div class="hero"><div class="count pos">${sdur(i.worked - s.target)}</div>
+          <div class="sub">Quota atteint à <b>${clock(f.depart)}</b>. Tu peux partir, le surplus va dans ton solde.</div></div>`;
+      }
+      extra = `<div class="tiles"><div class="tile"><span class="eyebrow">Déjà fait</span><span class="v">${dur(i.worked)}</span><span class="d">sur ${dur(s.target)}, pause de ${dur(f.pause)}</span></div>${soldeTile}</div>`;
+    } else if (i.status === "done") {
+      hero = `<div class="hero"><div class="count">${dur(i.worked)}</div>
+        <div class="sub">faites, journée terminée <span class="chip ${i.diff >= 0 ? "pos" : "neg"}">${sdur(i.diff)}</span></div></div>`;
+      extra = `<div class="tiles"><div class="tile"><span class="eyebrow">Horaires</span><span class="v">${clock(toMin(i.rec.in))} → ${clock(toMin(i.rec.out))}</span><span class="d">pause ${dur(Math.max(0, (i.pauseIv?.[1] ?? 0) - (i.pauseIv?.[0] ?? 0)))}</span></div>
+        <div class="tile"><span class="eyebrow">Mois après ce jour</span><span class="v ${balBefore + i.diff >= 0 ? "pos" : "neg"}">${sdur(balBefore + i.diff)}</span><span class="d">${balBefore + i.diff >= 0 ? "d'avance" : "à rattraper"}</span></div></div>`;
+    } else if (i.status === "todo") {
+      hero = `<div class="hero"><div class="count">${dur(s.target)}</div>
+        <div class="sub">à faire. Si tu arrives maintenant, départ à <b>${clock(f.depart)}</b></div></div>`;
+      extra = `<div class="tiles"><div class="tile"><span class="eyebrow">Arrivée</span><span class="v">${clock(toMin(s.arrMin))}–${clock(toMin(s.arrMax))}</span><span class="d">plage autorisée</span></div>${soldeTile}</div>`;
+    } else if (i.status === "incomplete") {
+      hero = `<div class="hero"><div class="count muted">—</div><div class="sub muted">Journée incomplète. Ajoute l'heure de départ pour compter ce jour.</div></div>`;
+    } else if (i.status === "missing") {
+      hero = `<div class="hero"><div class="count muted">—</div><div class="sub muted">Pas d'heures saisies. Remplis tes heures, ou change le type si c'était un jour de cours ou de congé. Vide, ce jour ne compte pas dans le solde.</div></div>`;
+    } else {
+      hero = `<div class="hero"><div class="count">${dur(s.target)}</div><div class="sub muted">prévues. Tu peux déjà le passer en cours ou en congé.</div></div>`;
+    }
+    hero += ribbon(i) + `<div class="legend"><span><i style="background:var(--accent)"></i>travaillé</span><span><i style="background:var(--pause)"></i>pause</span><span><i style="background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)"></i>prévu</span><span><i style="background:var(--pos)"></i>départ</span></div>`;
+  }
+
+  // Bouton de pointage principal + champs
+  let punch = "";
+  if (i.type === "work") {
+    const slots = [["in", "Arrivée", "Pointer mon arrivée"], ["ps", "Pause", "Partir en pause"], ["pe", "Reprise", "Reprendre"], ["out", "Départ", "Pointer mon départ"]];
+    const next = i.isToday ? slots.find(([f]) => !i.rec[f]) : null;
+    const hints = { in: `${clock(toMin(s.arrMin))}–${clock(toMin(s.arrMax))}`, ps: `prévu ${clock(toMin(s.pauseStart))}`, pe: `prévu ${clock(toMin(s.pauseEnd))}`, out: `dès ${clock(toMin(s.depMin))}` };
+    punch = `<section class="panel">
+      ${next ? `<button class="btn big" data-now="${next[0]}"><span>${next[2]}</span><span class="mono" id="nowClock">${clock(now)}</span></button>` : ""}
+      <div class="punch">${slots.map(([f, l]) => `<div class="slot"><label for="t-${f}">${l}</label><input type="time" id="t-${f}" data-f="${f}" value="${esc(i.rec[f] || "")}"><span class="hint">${hints[f]}</span></div>`).join("")}</div>
+      ${(() => { const n = [...i.warnings.map(w => `<div class="alert">${esc(w)}</div>`)]; if (i.pauseAssumed) n.push(`<div class="alert info">Pause non saisie : ${clock(toMin(s.pauseStart))}–${clock(toMin(s.pauseEnd))} déduite par défaut.</div>`); return n.length ? `<div class="alerts">${n.join("")}</div>` : ""; })()}
+      ${["in", "ps", "pe", "out"].some(f => i.rec[f]) ? `<div class="row" id="resetRow"><button class="btn ghost sm danger" data-act="askReset">Effacer les heures de ce jour</button></div>` : ""}
+    </section>`;
+  }
+
+  el.innerHTML = `<section class="panel">
+      <div class="dayhead">
+        <div><h2>${i.isToday ? "Aujourd'hui, " + longDate(selKey).toLowerCase() : longDate(selKey)}</h2>
+          ${i.holiday ? `<div style="margin-top:6px">${i.type === "ferie" ? `<span class="chip ferie">Férié chômé : ${HOL_NAME[i.holiday]}</span>` : `<span class="chip ferie-w">Férié non chômé : ${HOL_NAME[i.holiday]}</span>`}</div>` : ""}</div>
+        <button class="monthpill ${ms.total >= 0 ? "pos" : "neg"}" data-act="toMonth"><span>Mois</span>${sdur(ms.total)}</button>
+      </div>
+      ${hero}${extra}
+      <div class="row spread">
+        ${i.type === "weekend" ? "<span></span>" : `<div class="row"><label class="eyebrow" for="dType">Type de jour</label><select id="dType">${typeOpts.map(t => `<option value="${t}"${t === i.type ? " selected" : ""}>${TYPE_LABEL[t]}</option>`).join("")}</select></div>`}
+        ${!i.isToday ? `<button class="btn sm" data-act="goToday">Aujourd'hui</button>` : ""}
+      </div>
+    </section>${punch}`;
+
+  el.querySelector("#dType")?.addEventListener("change", e => setType(selKey, e.target.value));
+  el.querySelectorAll("input[data-f]").forEach(inp => inp.addEventListener("change", e => setField(selKey, e.target.dataset.f, e.target.value)));
+  el.querySelectorAll("[data-now]").forEach(b => b.addEventListener("click", () => setField(selKey, b.dataset.now, toHHMM(nowMin()))));
+  el.querySelector('[data-act="goToday"]')?.addEventListener("click", () => { selKey = todayKey; render(); });
+  el.querySelector('[data-act="toMonth"]')?.addEventListener("click", () => { viewYM = ymOf(todayKey); setTab("month"); });
+  el.querySelector('[data-act="askReset"]')?.addEventListener("click", () => {
+    const row = el.querySelector("#resetRow");
+    row.innerHTML = `<div class="confirm">Effacer arrivée, pause, reprise et départ ? <button class="btn sm danger" data-act="doReset">Effacer</button><button class="btn sm ghost" data-act="cancel">Annuler</button></div>`;
+    row.querySelector('[data-act="doReset"]').addEventListener("click", () => {
+      const ym = ymOf(selKey), m = monthObj(ym), rec = m.days[selKey];
+      if (rec) { ["in", "ps", "pe", "out"].forEach(f => delete rec[f]); if (!Object.keys(rec).length) delete m.days[selKey]; }
+      persistMonth(ym); render();
+    });
+    row.querySelector('[data-act="cancel"]').addEventListener("click", () => render());
+  });
+}
+
+/* ---- Semaines : carrousel ---- */
+const WEEKS_BACK = 26, WEEKS_FWD = 26;
+let carouselBase = null, weekIdx = WEEKS_BACK, carouselPlaced = false;
+function weekLabel(mon) {
+  const fri = addDays(mon, 4);
+  return mon.getMonth() === fri.getMonth() ? `${mon.getDate()} au ${fri.getDate()} ${MON3[fri.getMonth()]}` : `${mon.getDate()} ${MON3[mon.getMonth()]} au ${fri.getDate()} ${MON3[fri.getMonth()]}`;
+}
+function slideHTML(mon) {
+  const s = S(); let counted = 0, diff = 0, done = 0;
+  const rows = [0, 1, 2, 3, 4].map(n => {
+    const k = keyOf(addDays(mon, n)), i = dayInfo(k), d = parseKey(k);
+    let right = "";
+    if (i.type === "work") {
+      if (i.status === "done") { counted += i.worked; diff += i.diff; done++; right = `${dur(i.worked)}<small class="${i.diff >= 0 ? "pos" : "neg"}">${sdur(i.diff)}</small>`; }
+      else if (i.status === "running" || i.status === "pause") { counted += i.worked; right = `${dur(i.worked)}<small class="muted">en cours</small>`; }
+      else right = `<span class="muted">—</span>`;
+    } else { if (i.isPast || i.isToday) counted += s.target; right = `<span class="muted">${dur(s.target)}</span><small class="muted">compté</small>`; }
+    return `<button class="drow${k === todayKey ? " today" : ""}" data-k="${k}">
+      <span><span class="dn">${DAY3[d.getDay()]}</span><br><span class="dd">${d.getDate()} ${MON3[d.getMonth()]}</span></span>
+      <span class="mid">${chipFor(i)}${ribbon(i, true)}</span>
+      <span class="right">${right}</span></button>`;
+  }).join("");
+  const has = done > 0;
+  return `<section class="panel">
+    <div class="wsum"><div><span class="eyebrow">Du ${weekLabel(mon)}</span><div class="big mono">${dur(counted)}<span class="muted" style="font-size:1rem;font-weight:500"> / ${dur(s.target * 5)}</span></div></div>
+      ${has ? `<span class="chip ${diff >= 0 ? "pos" : "neg"}" style="font-size:0.85rem">${sdur(diff)}</span>` : ""}</div>
+    <div class="dlist">${rows}</div>
+    <div class="row"><span class="eyebrow">Cours</span><button class="btn sm" data-preset="45">Jeu + Ven</button><button class="btn sm" data-preset="12">Lun + Mar</button></div>
+  </section>`;
+}
+function renderWeeks() {
+  const car = $("carousel");
+  const thisMon = mondayOf(new Date());
+  if (!carouselBase || carouselBase.getTime() !== addDays(thisMon, -7 * WEEKS_BACK).getTime() || !car.children.length) {
+    carouselBase = addDays(thisMon, -7 * WEEKS_BACK);
+    car.innerHTML = Array.from({ length: WEEKS_BACK + WEEKS_FWD + 1 }, (_, n) => `<div class="slide" data-n="${n}"></div>`).join("");
+    carouselPlaced = false;
+  }
+  // Ne remplit que la semaine visible et ses voisines pour rester léger
+  [...car.children].forEach((sl, n) => {
+    if (Math.abs(n - weekIdx) <= 2) { sl.innerHTML = slideHTML(addDays(carouselBase, 7 * n)); sl.dataset.filled = "1"; }
+    else if (sl.dataset.filled) { sl.innerHTML = ""; delete sl.dataset.filled; }
+  });
+  $("wTitle").textContent = weekIdx === WEEKS_BACK ? "Cette semaine" : weekIdx === WEEKS_BACK + 1 ? "Semaine prochaine" : weekIdx === WEEKS_BACK - 1 ? "Semaine dernière" : `Semaine du ${weekLabel(addDays(carouselBase, 7 * weekIdx))}`;
+  if (!carouselPlaced && tab === "weeks") { car.style.scrollBehavior = "auto"; car.scrollLeft = weekIdx * (car.clientWidth + 12); car.style.scrollBehavior = ""; carouselPlaced = true; }
+}
+function bindWeeks() {
+  const car = $("carousel");
+  let t = null;
+  car.addEventListener("scroll", () => {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      const n = Math.round(car.scrollLeft / (car.clientWidth + 12));
+      if (n !== weekIdx) { weekIdx = Math.max(0, Math.min(WEEKS_BACK + WEEKS_FWD, n)); renderWeeks(); }
+    }, 90);
+  });
+  car.addEventListener("click", e => {
+    const row = e.target.closest(".drow");
+    if (row) { selKey = row.dataset.k; viewYM = ymOf(selKey); setTab("day"); return; }
+    const p = e.target.closest("[data-preset]");
+    if (p) { const sl = p.closest(".slide"); applyPreset(addDays(carouselBase, 7 * +sl.dataset.n), p.dataset.preset.split("").map(Number)); }
+  });
+  car.addEventListener("keydown", e => { if (e.key === "ArrowRight") goWeek(1); if (e.key === "ArrowLeft") goWeek(-1); });
+  const goWeek = d => { weekIdx = Math.max(0, Math.min(WEEKS_BACK + WEEKS_FWD, weekIdx + d)); renderWeeks(); car.scrollTo({ left: weekIdx * (car.clientWidth + 12) }); };
+  $("wPrev").addEventListener("click", () => goWeek(-1));
+  $("wNext").addEventListener("click", () => goWeek(1));
+  $("wToday").addEventListener("click", () => goWeek(WEEKS_BACK - weekIdx));
+}
+
+/* ---- Mois ---- */
+function chartSVG(series, adj) {
+  if (!series.length) return `<p class="note">Le graphique du solde apparaîtra dès ta première journée complète.</p>`;
+  const W = 560, H = 150, L = 44, Rr = 10, T = 12, B = 24;
+  const vals = series.map(p => p.cum).concat([0, adj]);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const span = Math.max(30, hi - lo); lo -= span * 0.12; hi += span * 0.12;
+  const days = +series[series.length - 1].k.slice(8), nDays = monthDays(series[0].k.slice(0, 7)).length;
+  const x = d => L + (d - 1) / Math.max(1, nDays - 1) * (W - L - Rr);
+  const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  const pts = series.map(p => [x(+p.k.slice(8)), y(p.cum)]);
+  const line = pts.map((p, n) => `${n ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("");
+  const area = `${line}L${pts[pts.length - 1][0].toFixed(1)},${y(0).toFixed(1)}L${pts[0][0].toFixed(1)},${y(0).toFixed(1)}Z`;
+  const last = series[series.length - 1].cum, col = last >= 0 ? "var(--pos)" : "var(--neg)";
+  const ticks = [1, 8, 15, 22, 29].filter(d => d <= nDays);
+  const yt = [hi - span * 0.12, 0, lo + span * 0.12].map(v => Math.round(v / 15) * 15).filter((v, n, a) => a.indexOf(v) === n);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution du solde du mois, ${sdur(last)} au ${days}">
+    ${yt.map(v => `<line x1="${L}" x2="${W - Rr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1" ${v === 0 ? "" : 'stroke-dasharray="3 4"'}/><text x="${L - 6}" y="${y(v) + 3}" text-anchor="end">${v === 0 ? "0" : sdur(v)}</text>`).join("")}
+    ${ticks.map(d => `<text x="${x(d)}" y="${H - 6}" text-anchor="middle">${d}</text>`).join("")}
+    <path d="${area}" fill="${col}" fill-opacity="0.14"/>
+    <path d="${line}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="4.5" fill="${col}" stroke="var(--paper)" stroke-width="2"/>
+  </svg>`;
+}
+function renderMonth() {
+  const [y, mo] = viewYM.split("-").map(Number);
+  $("mTitle").textContent = `${cap(MONTHS[mo - 1])} ${y}`;
+  const cur = viewYM === ymOf(todayKey), ms = monthSummary(viewYM), t = ms.total;
+  const verdict = t > 0 ? "Tu es en positif" : t < 0 ? "Tu es en négatif" : "Tu es à l'équilibre";
+  const help = t > 0 ? `${dur(t)} d'avance${cur ? " à prendre avant la fin du mois" : ""}.` : t < 0 ? `${dur(t)} à rattraper${cur ? " avant la fin du mois" : ""}.` : "Ni avance ni retard.";
+  $("mBalance").innerHTML = `<span class="verdict ${t > 0 ? "pos" : t < 0 ? "neg" : ""}">${verdict}</span><span class="v ${t > 0 ? "pos" : t < 0 ? "neg" : ""}">${sdur(t)}</span><span class="muted">${help}${cur ? " Le solde repart à 0 le 1er du mois prochain." : ""}</span>`;
+  $("mChart").innerHTML = chartSVG(ms.series, ms.adj);
+  $("mStats").innerHTML = [[ms.work, "jours travaillés"], [ms.cours, "jours de cours"], [ms.conge + ms.ferie, "congés et fériés"], [ms.missing, "à remplir"]]
+    .map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+  const adjEl = $("mAdj"); if (document.activeElement !== adjEl) adjEl.value = ms.adj ? sdur(ms.adj) : "";
+  const hols = Object.entries(holidaysOf(y)).filter(([k]) => ymOf(k) === viewYM);
+  const ty = +todayKey.slice(0, 4);
+  const nextHol = Object.entries({ ...holidaysOf(ty), ...holidaysOf(ty + 1) }).filter(([k]) => k >= todayKey).sort()[0];
+  const ch = id => S().ferieChome[id] !== false;
+  $("mHol").textContent = (hols.length ? "Fériés ce mois-ci : " + hols.map(([k, id]) => `${longDate(k)}, ${HOL_NAME[id]} (${ch(id) ? "chômé" : "non chômé, travaillé"})`).join(", ") + "." : "Aucun férié ce mois-ci.") +
+    (nextHol ? ` Prochain férié : ${longDate(nextHol[0])}, ${HOL_NAME[nextHol[1]]} (${ch(nextHol[1]) ? "chômé" : "non chômé"}).` : "");
+  const rows = ms.rows.slice().reverse();
+  $("mTable").innerHTML = `<thead><tr><th>Jour</th><th>Type</th><th class="r">Arrivée</th><th class="r">Départ</th><th class="r">Temps</th><th class="r">Écart</th></tr></thead><tbody>` +
+    (rows.length ? rows.map(i => {
+      const w = i.type === "work", live = i.status === "running" || i.status === "pause", d = parseKey(i.k);
+      const tm = w ? (i.status === "done" || live ? dur(i.worked) : "—") : dur(S().target);
+      const ec = w && i.status === "done" ? `<span class="${i.diff >= 0 ? "pos" : "neg"}">${sdur(i.diff)}</span>` : `<span class="muted">${live ? "en cours" : "0h00"}</span>`;
+      return `<tr data-k="${i.k}"><td>${DAY3[d.getDay()]} ${d.getDate()}</td><td>${chipFor(i)}</td><td class="r mono">${w ? clock(toMin(i.rec.in)) : ""}</td><td class="r mono">${w ? clock(toMin(i.rec.out)) : ""}</td><td class="r mono">${tm}</td><td class="r mono">${ec}</td></tr>`;
+    }).join("") : `<tr><td colspan="6" class="muted">Rien pour ce mois.</td></tr>`) + `</tbody>`;
+}
+function bindMonth() {
+  const shift = n => { const [y, m] = viewYM.split("-").map(Number), d = new Date(y, m - 1 + n, 1); viewYM = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; backend?.watchMonth?.(viewYM); renderMonth(); };
+  $("mPrev").addEventListener("click", () => shift(-1));
+  $("mNext").addEventListener("click", () => shift(1));
+  $("mAdj").addEventListener("change", e => { const v = parseDur(e.target.value); if (v == null) { e.target.value = ""; return; } monthObj(viewYM).adj = v; persistMonth(viewYM); render(); });
+  $("mTable").addEventListener("click", e => { const tr = e.target.closest("tr[data-k]"); if (tr) { selKey = tr.dataset.k; setTab("day"); } });
+}
+
+/* ---- Réglages ---- */
+function fillSettings() {
+  const s = S(), set = (id, v) => { const el = $(id); if (document.activeElement !== el) el.value = v; };
+  set("sTarget", dur(s.target)); set("sArrMin", s.arrMin); set("sArrMax", s.arrMax); set("sDepMin", s.depMin); set("sPS", s.pauseStart); set("sPE", s.pauseEnd);
+  $("sCBM").checked = !!s.countBeforeMin;
+  $("sCours").innerHTML = [1, 2, 3, 4, 5].map(w => `<label class="btn sm"><input type="checkbox" data-w="${w}"${s.coursDays.includes(w) ? " checked" : ""}> ${DAY3[w]}</label>`).join("");
+  const y = +todayKey.slice(0, 4), next = {};
+  for (const [k, id] of Object.entries({ ...holidaysOf(y), ...holidaysOf(y + 1) }).sort()) if (k >= todayKey && !next[id]) next[id] = k;
+  $("sFeries").innerHTML = HOLIDAYS.map(([id, name]) => `<label><input type="checkbox" data-h="${id}"${s.ferieChome[id] !== false ? " checked" : ""}${id === "mai1" ? " disabled" : ""}> ${name}${id === "pentecote" ? ' <span class="muted">(souvent journée de solidarité)</span>' : ""}<span class="d">${next[id] ? longDate(next[id]) : ""}</span></label>`).join("");
+}
+function bindSettings() {
+  const tf = (id, key) => $(id).addEventListener("change", e => { if (toMin(e.target.value) != null) { S()[key] = e.target.value; persistSettings(); render(); } });
+  tf("sArrMin", "arrMin"); tf("sArrMax", "arrMax"); tf("sDepMin", "depMin"); tf("sPS", "pauseStart"); tf("sPE", "pauseEnd");
+  $("sTarget").addEventListener("change", e => { const v = parseDur(e.target.value); if (v > 0) { S().target = v; persistSettings(); } e.target.value = dur(S().target); render(); });
+  $("sCBM").addEventListener("change", e => { S().countBeforeMin = e.target.checked; persistSettings(); render(); });
+  $("sCours").addEventListener("change", () => { S().coursDays = [...$("sCours").querySelectorAll("input:checked")].map(x => +x.dataset.w); persistSettings(); render(); });
+  $("sFeries").addEventListener("change", e => { const id = e.target.dataset.h; if (!id) return; S().ferieChome = { ...S().ferieChome, [id]: e.target.checked, mai1: true }; persistSettings(); render(); });
+  $("ioExport").addEventListener("click", async () => {
+    const txt = JSON.stringify({ app: "pointage7h", v: 1, settings: state.settings, months: state.months });
+    $("ioText").value = txt;
+    try { await navigator.clipboard.writeText(txt); $("ioMsg").textContent = "Copié."; } catch (e) { $("ioText").select(); $("ioMsg").textContent = "Texte sélectionné, copie-le avec Ctrl+C."; }
+  });
+  $("ioImport").addEventListener("click", () => {
+    let p; try { p = JSON.parse($("ioText").value); } catch (e) { $("ioMsg").textContent = "Ce texte n'est pas une sauvegarde valide."; return; }
+    if (p?.app !== "pointage7h") { $("ioMsg").textContent = "Ce texte ne vient pas de Pointage 7h."; return; }
+    $("ioMsg").innerHTML = `<span class="confirm">Remplacer les mois présents dans la sauvegarde ? <button class="btn sm" id="ioYes">Importer</button></span>`;
+    $("ioYes").addEventListener("click", () => {
+      state.settings = { ...structuredClone(DEFAULT_SETTINGS), ...(p.settings || {}) }; persistSettings();
+      for (const [ym, m] of Object.entries(p.months || {})) { state.months[ym] = m; persistMonth(ym); backend?.watchMonth?.(ym); }
+      fillSettings(); render(); $("ioMsg").textContent = "Données importées.";
+    });
+  });
+}
+
+/* ---- Onglets et rendu global ---- */
+function setTab(t) {
+  tab = t; lsSet(LS_TAB, t);
+  for (const v of ["day", "weeks", "month", "settings"]) $("v-" + v).hidden = v !== t;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-current", b.dataset.tab === t ? "page" : "false"));
+  if (t === "weeks") { weekIdx = WEEKS_BACK + Math.round((mondayOf(parseKey(selKey)) - mondayOf(new Date())) / 6048e5); carouselPlaced = false; }
+  render(); window.scrollTo(0, 0);
+}
+function render(force = true) {
+  const t = keyOf(new Date());
+  if (t !== todayKey) { if (selKey === todayKey) selKey = t; todayKey = t; }
+  const a = document.activeElement;
+  const typing = !force && a && a.tagName === "INPUT";
+  if (tab === "day" && !typing) renderDay();
+  if (tab === "weeks") renderWeeks();
+  if (tab === "month") renderMonth();
+}
+
+function boot() {
+  document.documentElement.lang = "fr";
+  document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { if (b.dataset.tab === "day" && tab === "day") selKey = todayKey; setTab(b.dataset.tab); }));
+  bindWeeks(); bindMonth(); bindSettings(); bindLogin();
+  setInterval(() => render(false), 20000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) render(false); });
+  window.addEventListener("resize", () => { if (tab === "weeks") { carouselPlaced = false; renderWeeks(); } });
+  const cfg = window.POINTAGE_CONFIG;
+  if (cfg?.supabaseUrl && cfg?.supabaseAnonKey) { fillSettings(); setTab(tab); bootSupabase(cfg); }
+  else { loadLocal(); fillSettings(); setTab(tab); connectClaude(); }
+}
+boot();
+})();
+</script>
